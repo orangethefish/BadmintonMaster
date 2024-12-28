@@ -19,7 +19,9 @@
       }
     ],
     "paths": {
-      "~/*": ["./src/*"]
+      "~/*": ["./src/app/*"],
+      "@components/*": ["./src/app/components/*"], // Maps '@components' to the 'components' directory
+      "@utils/*": ["./utils/*"] // Another example mapping '@utils'
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

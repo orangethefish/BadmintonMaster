@@ -1,72 +1,48 @@
 'use client';
 
-import { useEffect, useState } from 'react';
-
-interface Example {
-  id: number;
-  name: string;
-  created_at: string;
-}
+import { useRouter } from 'next/navigation';
+import Image from 'next/image';
+import LanguageSwitcher from '@components/LanguageSwitcher';
 
 export default function Home() {
-  const [examples, setExamples] = useState<Example[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  useEffect(() => {
-    const fetchExamples = async () => {
-      try {
-        const response = await fetch('http://localhost:3001/api/examples');
-        if (!response.ok) {
-          throw new Error('Failed to fetch data');
-        }
-        const data = await response.json();
-        setExamples(data);
-      } catch (err) {
-        setError(err instanceof Error ? err.message : 'An error occurred');
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchExamples();
-  }, []);
+  const router = useRouter();
 
   return (
-    <main className="min-h-screen p-24">
-      <h1 className="text-4xl font-bold mb-8">Full Stack App Demo</h1>
-      
-      {loading && (
+    <main className="min-h-screen flex items-center justify-center bg-gray-50 relative">
+      <div className="absolute top-4 right-4">
+        <LanguageSwitcher />
+      </div>
+      <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
-          <p>Loading...</p>
+          <div className="flex justify-center mb-4">
+            <Image
+              src="/icon.png"
+              alt="Tournament Hub Icon"
+              width={64}
+              height={64}
+              priority
+            />
+          </div>
+          <h1 className="text-4xl font-bold text-gray-900 mb-2">Tournament Hub</h1>
+          <p className="text-gray-600">Create or join a tournament to get started</p>
         </div>
-      )}
-
-      {error && (
-        <div className="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded">
-          <p>{error}</p>
+        
+        <div className="space-y-4">
+          <button
+            onClick={() => router.push('/tournament/new')}
+            className="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 md:py-4 md:text-lg md:px-10"
+          >
+            Create New Tournament
+          </button>
+          
+          <button
+            onClick={() => router.push('/tournament/join')}
+            className="w-full flex items-center justify-center px-8 py-3 border border-gray-300 text-base font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
+          >
+            Join Existing Tournament
+          </button>
         </div>
-      )}
-
-      {!loading && !error && (
-        <div className="bg-white shadow-md rounded-lg p-6">
-          <h2 className="text-2xl font-semibold mb-4">Examples from Backend:</h2>
-          {examples.length === 0 ? (
-            <p className="text-gray-500">No examples found in the database.</p>
-          ) : (
-            <ul className="space-y-2">
-              {examples.map((example) => (
-                <li key={example.id} className="border-b py-2">
-                  <p className="font-medium">{example.name}</p>
-                  <p className="text-sm text-gray-500">
-                    Created: {new Date(example.created_at).toLocaleString()}
-                  </p>
-                </li>
-              ))}
-            </ul>
-          )}
-        </div>
-      )}
+      </div>
     </main>
   );
 }
