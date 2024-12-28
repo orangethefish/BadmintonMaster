@@ -23,21 +23,3 @@ export interface TournamentModel {
   endDate: string;
   invitationCode?: number;
 }
-
-export const defaultTournament: TournamentModel = {
-  name: '',
-  description: '',
-  numOfGroups: 4,
-  groupScore: 21,
-  groupMaxScore: 21,
-  groupBestOf: BestOf.ONE,
-  groupWinning: WinningCondition.EXACT,
-  groupOffBestOf: BestOf.ONE,
-  playOffScore: 25,
-  playOffMaxScore: 25,
-  playOffBestOf: BestOf.ONE,
-  playOffWinning: WinningCondition.EXACT,
-  playOffFormat: PlayOffFormat.SINGLE_ELIMINATION,
-  startDate: '',
-  endDate: ''
-}; 

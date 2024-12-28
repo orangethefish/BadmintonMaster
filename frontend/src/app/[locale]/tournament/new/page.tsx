@@ -5,9 +5,22 @@ import { Link } from '@src/i18n/routing';
 import { useState } from 'react';
 import { TournamentModel, defaultTournament } from '@/data-models/tournament.model';
 import { BestOf, PlayOffFormat, WinningCondition } from '@/enums/tournament.enum';
+import { ServiceFactory } from '@/services/service.factory';
+import { NotificationService } from '@/services/notification/notification.service';
+import { ErrorService } from '@/services/error/error.service';
+import { useRouter } from 'next/navigation';
+import { formatDateForInput, formatDateForServer } from '@/utils/date.utils';
+
+const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
+  <div className="flex items-center">
+    <span className="block text-sm font-medium text-gray-700">{text}</span>
+    <span className="text-red-500 ml-1">*</span>
+  </div>
+);
 
 export default function NewTournamentPage() {
   const t = useTranslations('NewTournament');
+  const router = useRouter();
   
   const [formData, setFormData] = useState<TournamentModel>(defaultTournament);
 
@@ -15,14 +28,36 @@ export default function NewTournamentPage() {
     const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: e.target.type === 'number' ? Number(value) : value
+      [name]: e.target.type === 'datetime-local' 
+        ? formatDateForServer(value)
+        : e.target.type === 'number' 
+        ? Number(value) 
+        : value
     }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle form submission here
-    console.log(formData);
+    
+    try {
+      const tournamentService = ServiceFactory.getTournamentService();
+      
+      await NotificationService.promise(
+        tournamentService.createTournament(formData),
+        {
+          loading: t('notifications.creating'),
+          success: t('notifications.created'),
+          error: (err) => ErrorService.handle(err),
+        }
+      );
+
+      // Redirect to tournaments list or show success message
+      // router.push('/tournaments');
+    } catch (error) {
+      if (!ErrorService.isHttpError(error)) {
+        NotificationService.error(ErrorService.handle(error));
+      }
+    }
   };
 
   return (
@@ -49,6 +84,19 @@ export default function NewTournamentPage() {
               <div className="bg-gray-50 p-6 rounded-lg">
                 <div className="space-y-4">
                   <div>
+                    <RequiredLabel text={t('name')} />
+                    <input
+                      type="text"
+                      id="name"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      required
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
+                    />
+                  </div>
+
+                  <div>
                     <label htmlFor="description" className="block text-sm font-medium text-gray-700">
                       {t('description')}
                     </label>
@@ -58,36 +106,34 @@ export default function NewTournamentPage() {
                       rows={3}
                       value={formData.description}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     />
                   </div>
 
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                     <div>
-                      <label htmlFor="startDate" className="block text-sm font-medium text-gray-700">
-                        {t('startDate')}
-                      </label>
+                      <RequiredLabel text={t('startDate')} />
                       <input
                         type="datetime-local"
                         id="startDate"
                         name="startDate"
-                        value={formData.startDate}
+                        value={formatDateForInput(formData.startDate)}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                        required
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                       />
                     </div>
 
                     <div>
-                      <label htmlFor="endDate" className="block text-sm font-medium text-gray-700">
-                        {t('endDate')}
-                      </label>
+                      <RequiredLabel text={t('endDate')} />
                       <input
                         type="datetime-local"
                         id="endDate"
                         name="endDate"
-                        value={formData.endDate}
+                        value={formatDateForInput(formData.endDate)}
                         onChange={handleInputChange}
-                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                        required
+                        className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                       />
                     </div>
                   </div>
@@ -119,7 +165,7 @@ export default function NewTournamentPage() {
                       min="1"
                       value={formData.numOfGroups}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     />
                   </div>
 
@@ -132,7 +178,7 @@ export default function NewTournamentPage() {
                       name="groupBestOf"
                       value={formData.groupBestOf}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     >
                       {Object.values(BestOf)
                         .filter(value => typeof value === 'number')
@@ -152,10 +198,10 @@ export default function NewTournamentPage() {
                       name="groupWinning"
                       value={formData.groupWinning}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     >
-                      <option value={WinningCondition.POINTS}>{t('points')}</option>
-                      <option value={WinningCondition.WINS}>{t('wins')}</option>
+                      <option value={WinningCondition.EXACT}>{t('exact')}</option>
+                      <option value={WinningCondition.TWO_POINTS_DIFFERENCE}>{t('twoPointsDifference')}</option>
                     </select>
                   </div>
 
@@ -170,7 +216,7 @@ export default function NewTournamentPage() {
                       min="0"
                       value={formData.groupScore}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     />
                   </div>
 
@@ -185,7 +231,7 @@ export default function NewTournamentPage() {
                       min="0"
                       value={formData.groupMaxScore}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     />
                   </div>
                 </div>
@@ -214,7 +260,7 @@ export default function NewTournamentPage() {
                       name="playOffBestOf"
                       value={formData.playOffBestOf}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     >
                       {Object.values(BestOf)
                         .filter(value => typeof value === 'number')
@@ -234,7 +280,7 @@ export default function NewTournamentPage() {
                       name="playOffFormat"
                       value={formData.playOffFormat}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     >
                       <option value={PlayOffFormat.SINGLE_ELIMINATION}>{t('singleElimination')}</option>
                       <option value={PlayOffFormat.DOUBLE_ELIMINATION}>{t('doubleElimination')}</option>
@@ -252,7 +298,7 @@ export default function NewTournamentPage() {
                       min="0"
                       value={formData.playOffScore}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     />
                   </div>
 
@@ -267,7 +313,7 @@ export default function NewTournamentPage() {
                       min="0"
                       value={formData.playOffMaxScore}
                       onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d]"
+                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     />
                   </div>
                 </div>

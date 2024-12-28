@@ -19,12 +19,19 @@
       "maxScore": "Maximum Score",
       "playoffStage": "Playoff Settings",
       "format": "Format",
-      "points": "Points",
-      "wins": "Wins",
+      "exact": "Exact",
+      "twoPointsDifference": "Two Points Difference",
       "singleElimination": "Single Elimination",
       "doubleElimination": "Double Elimination",
       "createButton": "Create Tournament",
-      "cancelButton": "Cancel"
+      "cancelButton": "Cancel",
+      "notifications": {
+        "creating": "Creating tournament...",
+        "created": "Tournament created successfully!",
+        "error": "Failed to create tournament"
+      },
+      "name": "Tournament Name",
+      "required": "Required fields are marked with *"
     },
     "JoinTournament": {
       "title": "Join Tournament",

@@ -19,12 +19,20 @@
       "maxScore": "Điểm Tối Đa",
       "playoffStage": "Cài Đặt Vòng Playoff",
       "format": "Định Dạng",
-      "points": "Điểm",
+      "exact": "Điểm chính xác",
+      "twoPointsDifference": "Thắng cách biệt 2 điểm",
       "wins": "Số Trận Thắng",
-      "singleElimination": "Đơn Loại",
-      "doubleElimination": "Nhị Loại",
+      "singleElimination": "Loại Trực Tiếp",
+      "doubleElimination": "Nhánh Thua",
       "createButton": "Tạo Giải Đấu",
-      "cancelButton": "Hủy Bỏ"
+      "cancelButton": "Hủy Bỏ",
+      "notifications": {
+        "creating": "Đang tạo giải đấu...",
+        "created": "Tạo giải đấu thành công!",
+        "error": "Không thể tạo giải đấu"
+      },
+      "name": "Tên Giải Đấu",
+      "required": "Các trường bắt buộc được đánh dấu bằng *"
     },
     "JoinTournament": {
       "title": "Tham Gia Giải Đấu",

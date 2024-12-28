@@ -5,8 +5,8 @@ export enum BestOf {
 }
 
 export enum WinningCondition {
-  EXACT = 0,
-  TWO_POINTS_DIFFERENCE = 1
+  POINTS = 0,
+  WINS = 1
 }
 
 export enum PlayOffFormat {

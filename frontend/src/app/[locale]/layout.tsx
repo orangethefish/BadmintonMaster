@@ -4,6 +4,7 @@ import {notFound} from 'next/navigation';
 import {routing} from '@src/i18n/routing';
 import {Metadata} from 'next';
 import HeaderComponent from './components/HeaderComponent';
+import { Toaster } from 'react-hot-toast';
 
 export const metadata: Metadata = {
   icons: {
@@ -32,6 +33,7 @@ export default async function LocaleLayout({
           <div className="main-content">
             {children}
           </div>
+          <Toaster />
         </NextIntlClientProvider>
       </body>
     </html>
