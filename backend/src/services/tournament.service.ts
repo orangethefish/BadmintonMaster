@@ -53,7 +53,7 @@ export class TournamentService {
     }
   }
 
-  private async getTournamentById(id: number): Promise<TournamentModel> {
+  public async getTournamentById(id: number): Promise<TournamentModel> {
     return new Promise((resolve, reject) => {
       const sql = `
         SELECT 

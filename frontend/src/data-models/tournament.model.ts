@@ -1,3 +1,5 @@
+import { FormatModel } from "./format.model";
+
 export interface TournamentModel {
   tournamentId?: number;
   name: string;
@@ -17,3 +19,9 @@ export const defaultTournament: TournamentModel = {
   startDate: '',
   endDate: ''
 }; 
+
+
+export interface CreateTournamentRequest {
+  tournament: TournamentModel;
+  formats: FormatModel[];
+}

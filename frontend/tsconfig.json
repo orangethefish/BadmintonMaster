@@ -22,7 +22,8 @@
       "@/*": ["./src/*"],
       "@components/*": ["./src/app/[locale]/components*"], // Maps '@components' to the 'components' directory
       "@utils/*": ["./utils/*"], // Another example mapping '@utils'
-      "@src/*": ["./src/*"]
+      "@src/*": ["./src/*"],
+      "@public/*": ["./public/*"],
     }
   },
   "include": ["next-env.d.ts", "**/*.ts", "**/*.tsx", ".next/types/**/*.ts"],

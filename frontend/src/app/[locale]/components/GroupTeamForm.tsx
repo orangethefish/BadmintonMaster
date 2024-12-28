@@ -21,6 +21,13 @@ interface GroupTeamFormProps {
   onUpdate: (groups: Group[]) => void;
 }
 
+const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
+  <div className="flex items-center">
+    <span className="block text-sm font-medium text-gray-700">{text}</span>
+    <span className="text-red-500 ml-1">*</span>
+  </div>
+);
+
 export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) {
   const t = useTranslations('NewTournament.groupsAndTeams');
   const [groups, setGroups] = useState<Group[]>([]);
@@ -88,26 +95,24 @@ export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) 
 
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                {t('groupName')}
-              </label>
+              <RequiredLabel text={t('groupName')} />
               <input
                 type="text"
                 value={group.groupName}
                 onChange={(e) => handleGroupChange(groupIndex, 'groupName', e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
+                required
               />
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700">
-                {t('numOfTeams')}
-              </label>
+              <RequiredLabel text={t('numOfTeams')} />
               <input
                 type="number"
                 min="2"
                 value={group.numOfTeams}
                 onChange={(e) => handleGroupChange(groupIndex, 'numOfTeams', Number(e.target.value))}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
+                required
               />
             </div>
           </div>
@@ -118,22 +123,26 @@ export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) 
               {group.teams.map((team, teamIndex) => (
                 <div key={teamIndex} className="grid grid-cols-2 gap-4">
                   <div>
+                    <RequiredLabel text={t('player1')} />
                     <input
                       type="text"
                       placeholder={t('player1')}
                       value={team.player1Name}
                       onChange={(e) => handleTeamChange(groupIndex, teamIndex, 'player1Name', e.target.value)}
                       className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
+                      required
                     />
                   </div>
                   {isDoubles && (
                     <div>
+                      <RequiredLabel text={t('player2')} />
                       <input
                         type="text"
                         placeholder={t('player2')}
                         value={team.player2Name}
                         onChange={(e) => handleTeamChange(groupIndex, teamIndex, 'player2Name', e.target.value)}
                         className="block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
+                        required={isDoubles}
                       />
                     </div>
                   )}

@@ -1,12 +1,19 @@
 import { BaseApiService } from '../api/base.service';
-import { TournamentModel } from '@/data-models/tournament.model';
-import { TournamentRequest } from '@/types/tournament.types';
+import { TournamentModel, CreateTournamentRequest } from '@/data-models/tournament.model';
+import { GroupModel, CreateGroupRequest } from '@/data-models/group.model';
+import { TeamModel } from '@/data-models/team.model';
+
+
 
 export class TournamentService extends BaseApiService {
   private readonly endpoint = '/tournaments';
 
-  async saveTournament(request: TournamentRequest): Promise<TournamentModel> {
-    return this.post<TournamentModel>(this.endpoint, request);
+  async saveTournament(request: CreateTournamentRequest): Promise<CreateTournamentRequest> {
+    return this.post<CreateTournamentRequest>(this.endpoint, request);
+  }
+
+  async saveGroup(formatId: number, request: CreateGroupRequest): Promise<CreateGroupRequest> {
+    return this.post<CreateGroupRequest>(`${this.endpoint}/${formatId}/groups`, request);
   }
 
   async getTournament(id: number): Promise<TournamentModel> {

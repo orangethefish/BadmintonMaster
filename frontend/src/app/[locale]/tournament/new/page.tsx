@@ -5,7 +5,7 @@ import { Link } from '@src/i18n/routing';
 import { useState, useEffect } from 'react';
 import { TournamentModel, defaultTournament } from '@/data-models/tournament.model';
 import { FormatModel, defaultFormat } from '@/data-models/format.model';
-import { TournamentCreationStep } from '@/enums/tournament.enum';
+import { TournamentCreationStep, FormatType } from '@/enums/tournament.enum';
 import { ServiceFactory } from '@/services/service.factory';
 import { NotificationService } from '@/services/notification/notification.service';
 import { ErrorService } from '@/services/error/error.service';
@@ -16,11 +16,9 @@ import StepsBar from '../../components/StepsBar';
 import GroupTeamForm from '../../components/GroupTeamForm';
 import { motion, AnimatePresence } from 'framer-motion';
 import TournamentInfoForm from '../../components/TournamentInfoForm';
-import { GroupModel, TeamModel } from '@/data-models/tournament.model';
+import { GroupModel } from '@/data-models/group.model';
+import { TeamModel } from '@/data-models/team.model';
 
-interface PageProps {
-  tournamentId?: number;  // Optional ID for editing existing tournament
-}
 
 const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
   <div className="flex items-center">
@@ -29,7 +27,7 @@ const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
   </div>
 );
 
-export default function NewTournamentPage({ tournamentId }: PageProps) {
+export default function NewTournamentPage() {
   const t = useTranslations('NewTournament');
   const router = useRouter();
   
@@ -39,25 +37,6 @@ export default function NewTournamentPage({ tournamentId }: PageProps) {
   const [groups, setGroups] = useState<GroupModel[]>([]);
   const [teams, setTeams] = useState<TeamModel[]>([]);
 
-  // Fetch existing data if editing
-  useEffect(() => {
-    const fetchTournament = async () => {
-      if (tournamentId) {
-        try {
-          const tournamentService = ServiceFactory.getTournamentService();
-          const data = await tournamentService.getTournament(tournamentId);
-          setTournament(data);
-          setFormats(data.formats || [{ ...defaultFormat }]);
-          setGroups(data.groups || []);
-          setTeams(data.teams || []);
-        } catch (error) {
-          NotificationService.error(ErrorService.handle(error));
-        }
-      }
-    };
-
-    fetchTournament();
-  }, [tournamentId]);
 
   const handleTournamentChange = (field: string, value: string) => {
     setTournament(prev => ({
@@ -86,27 +65,115 @@ export default function NewTournamentPage({ tournamentId }: PageProps) {
     setCurrentStep(prev => prev - 1);
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const isTournamentInfoValid = () => {
+    return tournament.name.trim() !== '' && 
+           tournament.startDate !== '' && 
+           tournament.endDate !== '';
+  };
+
+  const isFormatsValid = () => {
+    return formats.every(format => 
+      format.numOfGroups > 0 &&
+      format.groupScore > 0 &&
+      format.groupMaxScore > 0 &&
+      format.playOffScore > 0 &&
+      format.playOffMaxScore > 0
+    );
+  };
+
+  const isGroupsAndTeamsValid = () => {
+    return groups.every(group => 
+      group.groupName.trim() !== '' &&
+      group.numOfTeams > 0 &&
+      teams.filter(team => team.groupId === group.groupId)
+           .every(team => team.player1Name.trim() !== '' && 
+                  (isDoubleFormat(group.formatId) ? team.player2Name?.trim() !== '' : true))
+    );
+  };
+
+  const isDoubleFormat = (formatId: number) => {
+    const format = formats.find(f => f.formatId === formatId);
+    return format?.formatType === FormatType.MEN_DOUBLES || 
+           format?.formatType === FormatType.WOMEN_DOUBLES || 
+           format?.formatType === FormatType.MIXED_DOUBLES;
+  };
+
+  const handleSubmitTournamentInfo = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    if (!isTournamentInfoValid()) {
+      NotificationService.error(t('errors.requiredFields'));
+      return;
+    }
+
+    handleNext();
+  };
+
+  const handleSubmitFormats = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!isFormatsValid()) {
+      NotificationService.error(t('errors.requiredFields'));
+      return;
+    }
+
     try {
       const tournamentService = ServiceFactory.getTournamentService();
-      
-      await NotificationService.promise(
+      const response = await NotificationService.promise(
         tournamentService.saveTournament({
           tournament,
           formats,
-          groups,
-          teams
         }),
         {
           loading: t('notifications.saving'),
           success: t('notifications.saved'),
-          error: (err) => ErrorService.handle(err),
+          error: t('notifications.error'),
         }
       );
 
-      // router.push('/tournaments');
+      if (response) {
+        if (response.tournament) {
+          setTournament(response.tournament);
+        }
+        if (response.formats) {
+          setFormats(response.formats);
+        }
+        handleNext();
+      }
+    } catch (error) {
+      if (!ErrorService.isHttpError(error)) {
+        NotificationService.error(ErrorService.handle(error));
+      }
+    }
+  };
+
+  const handleSubmitGroupAndTeam = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!isGroupsAndTeamsValid()) {
+      NotificationService.error(t('errors.requiredFields'));
+      return;
+    }
+
+    try {
+      const tournamentService = ServiceFactory.getTournamentService();
+      const response = await NotificationService.promise(
+        tournamentService.saveGroup(formats.formatId!, {
+          groups,
+          teams,
+        }),
+        {
+          loading: t('notifications.savingGroups'),
+          success: t('notifications.groupsSaved'),
+          error: t('notifications.error'),
+        }
+      );
+
+      if (response) {
+        setGroups(response.groups);
+        setTeams(response.teams);
+        router.push(`/tournament/${tournament.tournamentId}`);
+      }
     } catch (error) {
       if (!ErrorService.isHttpError(error)) {
         NotificationService.error(ErrorService.handle(error));
@@ -194,13 +261,29 @@ export default function NewTournamentPage({ tournamentId }: PageProps) {
           <div className="p-8">
             <StepsBar currentStep={currentStep} />
 
-            <form onSubmit={handleSubmit} className="mt-8 space-y-8">
-              <AnimatePresence mode="wait">
+            {currentStep === TournamentCreationStep.TOURNAMENT_INFO && (
+              <form onSubmit={handleSubmitTournamentInfo} className="mt-8 space-y-8">
                 {renderStepContent()}
-              </AnimatePresence>
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <button
+                    type="submit"
+                    disabled={!isTournamentInfoValid()}
+                    className={`flex-1 rounded-lg py-3 px-4 font-medium text-lg ${
+                      isTournamentInfoValid()
+                        ? 'bg-[#39846d] text-white hover:bg-[#2c6353]'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    } transition-colors duration-200`}
+                  >
+                    {t('next')}
+                  </button>
+                </div>
+              </form>
+            )}
 
-              <div className="flex flex-col sm:flex-row gap-4 pt-4">
-                {currentStep > TournamentCreationStep.TOURNAMENT_INFO && (
+            {currentStep === TournamentCreationStep.FORMATS && (
+              <form onSubmit={handleSubmitFormats} className="mt-8 space-y-8">
+                {renderStepContent()}
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
                   <button
                     type="button"
                     onClick={handleBack}
@@ -208,26 +291,46 @@ export default function NewTournamentPage({ tournamentId }: PageProps) {
                   >
                     {t('back')}
                   </button>
-                )}
-
-                {currentStep < TournamentCreationStep.GROUPS_AND_TEAMS ? (
                   <button
-                    type="button"
-                    onClick={handleNext}
-                    className="flex-1 bg-[#39846d] text-white rounded-lg py-3 px-4 hover:bg-[#2c6353] transition-colors duration-200 font-medium text-lg"
+                    type="submit"
+                    disabled={!isFormatsValid()}
+                    className={`flex-1 rounded-lg py-3 px-4 font-medium text-lg ${
+                      isFormatsValid()
+                        ? 'bg-[#39846d] text-white hover:bg-[#2c6353]'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    } transition-colors duration-200`}
                   >
                     {t('next')}
                   </button>
-                ) : (
+                </div>
+              </form>
+            )}
+
+            {currentStep === TournamentCreationStep.GROUPS_AND_TEAMS && (
+              <form onSubmit={handleSubmitGroupAndTeam} className="mt-8 space-y-8">
+                {renderStepContent()}
+                <div className="flex flex-col sm:flex-row gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={handleBack}
+                    className="flex-1 bg-gray-100 text-gray-700 rounded-lg py-3 px-4 hover:bg-gray-200 transition-colors duration-200 font-medium text-lg"
+                  >
+                    {t('back')}
+                  </button>
                   <button
                     type="submit"
-                    className="flex-1 bg-[#39846d] text-white rounded-lg py-3 px-4 hover:bg-[#2c6353] transition-colors duration-200 font-medium text-lg"
+                    disabled={!isGroupsAndTeamsValid()}
+                    className={`flex-1 rounded-lg py-3 px-4 font-medium text-lg ${
+                      isGroupsAndTeamsValid()
+                        ? 'bg-[#39846d] text-white hover:bg-[#2c6353]'
+                        : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                    } transition-colors duration-200`}
                   >
                     {t('finish')}
                   </button>
-                )}
-              </div>
-            </form>
+                </div>
+              </form>
+            )}
           </div>
         </div>
       </div>

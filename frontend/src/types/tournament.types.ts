@@ -6,6 +6,4 @@ import { TeamModel } from '@/data-models/team.model';
 export interface TournamentRequest {
   tournament: TournamentModel;
   formats: FormatModel[];
-  groups: GroupModel[];
-  teams: TeamModel[];
 } 

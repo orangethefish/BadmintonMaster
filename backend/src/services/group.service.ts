@@ -15,7 +15,24 @@ export class GroupService {
     this.teamService = new TeamService();
   }
 
-  public async addGroup(group: GroupModel): Promise<GroupModel> {
+  public async addOrUpdateGroup(group: GroupModel): Promise<GroupModel> {
+    // Check if group exists if ID is provided
+    if (group.groupId) {
+      try {
+        await this.getGroupById(group.groupId);
+        return this.updateGroup(group);
+      } catch (error) {
+        // If group not found, proceed with creation
+        if ((error as Error).message === 'Group not found') {
+          return this.createGroup(group);
+        }
+        throw error;
+      }
+    }
+    return this.createGroup(group);
+  }
+
+  private async createGroup(group: GroupModel): Promise<GroupModel> {
     return new Promise((resolve, reject) => {
       const sql = `INSERT INTO "Group" (
         FormatId, GroupName, NumOfTeams
@@ -37,6 +54,42 @@ export class GroupService {
         try {
           const createdGroup = await self.getGroupById(this.lastID);
           resolve(createdGroup);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  private async updateGroup(group: GroupModel): Promise<GroupModel> {
+    return new Promise((resolve, reject) => {
+      const sql = `UPDATE "Group" SET
+        FormatId = ?,
+        GroupName = ?,
+        NumOfTeams = ?
+        WHERE GroupId = ?`;
+
+      const params = [
+        group.formatId,
+        group.groupName,
+        group.numOfTeams,
+        group.groupId
+      ];
+
+      const self = this;
+      db.run(sql, params, async function(this: RunResult, err: Error | null) {
+        if (err) {
+          console.error('Error updating group:', err);
+          reject(err);
+          return;
+        }
+        if (this.changes === 0) {
+          reject(new Error('Group not found'));
+          return;
+        }
+        try {
+          const updatedGroup = await self.getGroupById(group.groupId!);
+          resolve(updatedGroup);
         } catch (error) {
           reject(error);
         }

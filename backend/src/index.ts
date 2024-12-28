@@ -3,7 +3,6 @@ import cors from 'cors';
 import dotenv from 'dotenv';
 import sqlite3 from 'sqlite3';
 import { join } from 'path';
-import { handleDates } from './middleware/dateHandler.middleware';
 import { TournamentController } from './controllers/tournament.controller';
 
 // Load environment variables
@@ -130,23 +129,11 @@ export const db = new sqlite3.Database(dbPath, (err) => {
 // Initialize controllers
 const tournamentController = new TournamentController();
 
-// Tournament routes
-app.post('/api/tournaments', handleDates, tournamentController.add.bind(tournamentController));
-
 // Routes
+app.use('/api/tournaments', tournamentController.router);
+
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the API' });
-});
-
-// Example route with database query
-app.get('/api/examples', (req, res) => {
-  db.all('SELECT * FROM examples', [], (err, rows) => {
-    if (err) {
-      res.status(500).json({ error: err.message });
-      return;
-    }
-    res.json(rows);
-  });
 });
 
 // Start server
