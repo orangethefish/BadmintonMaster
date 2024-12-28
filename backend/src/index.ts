@@ -22,11 +22,28 @@ const db = new sqlite3.Database(dbPath, (err) => {
   } else {
     console.log('Connected to SQLite database');
     // Create tables if they don't exist
-    db.run(`CREATE TABLE IF NOT EXISTS examples (
-      id INTEGER PRIMARY KEY AUTOINCREMENT,
-      name TEXT NOT NULL,
-      created_at DATETIME DEFAULT CURRENT_TIMESTAMP
-    )`);
+    db.run(`CREATE TABLE IF NOT EXISTS Tournament (
+    TournamentId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+    Discription VARCHAR(100), 
+    NumOfGroups INT,
+    GroupScore INT,
+    GroupMaxScore INT,
+    GroupBestOf INT, -- Originally enum
+    GroupWinning INT, -- Originally enum
+    GroupOffBestOf INT,
+    PlayOffScore INT,
+    PlayOffMaxScore INT,
+    PlayOffBestOf INT, -- Originally enum
+    PlayOffWinning INT, -- Originally enum
+    PlayOffFormat INT, -- Originally enum
+    Deleted BOOLEAN,
+    DateCreated DATETIME,
+    DateModified DATETIME,
+    DateDeleted DATETIME NULLABLE,
+    StartDate DATETIME,
+    EndDate DATETIME,
+    InvitationCode INT
+    );`);
   }
 });
 

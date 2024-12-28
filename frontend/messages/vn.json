@@ -4,5 +4,35 @@
       "subtitle": "Tạo hoặc tham gia giải đấu để bắt đầu",
       "createButton": "Tạo giải đấu mới",
       "joinButton": "Tham gia giải đấu"
+    },
+    "NewTournament": {
+      "title": "Tạo Giải Đấu Mới",
+      "basicInfo": "Thông Tin Cơ Bản",
+      "description": "Mô Tả",
+      "startDate": "Ngày Bắt Đầu",
+      "endDate": "Ngày Kết Thúc",
+      "groupStage": "Cài Đặt Vòng Bảng",
+      "numOfGroups": "Số Lượng Bảng",
+      "bestOf": "Thể Thức",
+      "winningCondition": "Điều Kiện Thắng",
+      "scorePerWin": "Điểm Mỗi Trận Thắng",
+      "maxScore": "Điểm Tối Đa",
+      "playoffStage": "Cài Đặt Vòng Playoff",
+      "format": "Định Dạng",
+      "points": "Điểm",
+      "wins": "Số Trận Thắng",
+      "singleElimination": "Đơn Loại",
+      "doubleElimination": "Nhị Loại",
+      "createButton": "Tạo Giải Đấu",
+      "cancelButton": "Hủy Bỏ"
+    },
+    "JoinTournament": {
+      "title": "Tham Gia Giải Đấu",
+      "codeLabel": "Mã Giải Đấu",
+      "codePlaceholder": "Nhập mã giải đấu",
+      "nameLabel": "Tên Của Bạn",
+      "namePlaceholder": "Nhập tên của bạn",
+      "joinButton": "Tham Gia",
+      "cancelButton": "Hủy Bỏ"
     }
   }

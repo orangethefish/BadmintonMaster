@@ -2,7 +2,7 @@
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import LanguageSwitcher from '@components/LanguageSwitcher';
+import LanguageSwitcher from '~/[locale]/components/LanguageSwitcher';
 
 export default function Home() {
   const router = useRouter();

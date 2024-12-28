@@ -4,5 +4,35 @@
       "subtitle": "Create or join a tournament to get started",
       "createButton": "Create New Tournament",
       "joinButton": "Join Existing Tournament"
+    },
+    "NewTournament": {
+      "title": "Create New Tournament",
+      "basicInfo": "Basic Information",
+      "description": "Description",
+      "startDate": "Start Date",
+      "endDate": "End Date",
+      "groupStage": "Group Stage Settings",
+      "numOfGroups": "Number of Groups",
+      "bestOf": "Best of",
+      "winningCondition": "Winning Condition",
+      "scorePerWin": "Score Per Win",
+      "maxScore": "Maximum Score",
+      "playoffStage": "Playoff Settings",
+      "format": "Format",
+      "points": "Points",
+      "wins": "Wins",
+      "singleElimination": "Single Elimination",
+      "doubleElimination": "Double Elimination",
+      "createButton": "Create Tournament",
+      "cancelButton": "Cancel"
+    },
+    "JoinTournament": {
+      "title": "Join Tournament",
+      "codeLabel": "Tournament Code",
+      "codePlaceholder": "Enter tournament code",
+      "nameLabel": "Your Name",
+      "namePlaceholder": "Enter your name",
+      "joinButton": "Join Tournament",
+      "cancelButton": "Cancel"
     }
   }
