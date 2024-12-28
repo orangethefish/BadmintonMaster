@@ -32,7 +32,20 @@
         "error": "Không thể tạo giải đấu"
       },
       "name": "Tên Giải Đấu",
-      "required": "Các trường bắt buộc được đánh dấu bằng *"
+      "required": "Các trường bắt buộc được đánh dấu bằng *",
+      "formats": {
+        "title": "Thể Thức Thi Đấu",
+        "addFormat": "Thêm Thể Thức",
+        "removeFormat": "Xóa Thể Thức",
+        "type": "Loại Thể Thức",
+        "types": {
+          "MEN_SINGLES": "Đơn Nam",
+          "WOMEN_SINGLES": "Đơn Nữ",
+          "MEN_DOUBLES": "Đôi Nam",
+          "WOMEN_DOUBLES": "Đôi Nữ",
+          "MIXED_DOUBLES": "Đôi Nam Nữ"
+        }
+      }
     },
     "JoinTournament": {
       "title": "Tham Gia Giải Đấu",

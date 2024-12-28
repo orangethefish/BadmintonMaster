@@ -1,8 +1,20 @@
 import { TournamentModel } from '../data-models/tournament.model';
+import { FormatModel } from '../data-models/format.model';
 import { db } from '../index';
 import { RunResult } from 'sqlite3';
+import { FormatService } from './format.service';
+
+export interface TournamentWithFormats extends TournamentModel {
+  formats?: FormatModel[];
+}
 
 export class TournamentService {
+  private formatService: FormatService;
+
+  constructor() {
+    this.formatService = new FormatService();
+  }
+
   private async isInvitationCodeActive(code: number): Promise<boolean> {
     return new Promise((resolve, reject) => {
       const sql = `
@@ -10,7 +22,7 @@ export class TournamentService {
         FROM Tournament 
         WHERE InvitationCode = ? 
         AND Deleted = false 
-        AND EndDate > datetime('now')`;
+        AND datetime(EndDate) > datetime('now')`;
       
       db.get(sql, [code], (err: Error | null, result: { count: number }) => {
         if (err) {
@@ -43,17 +55,6 @@ export class TournamentService {
           TournamentId as tournamentId,
           Name as name,
           Description as description,
-          NumOfGroups as numOfGroups,
-          GroupScore as groupScore,
-          GroupMaxScore as groupMaxScore,
-          GroupBestOf as groupBestOf,
-          GroupWinning as groupWinning,
-          GroupOffBestOf as groupOffBestOf,
-          PlayOffScore as playOffScore,
-          PlayOffMaxScore as playOffMaxScore,
-          PlayOffBestOf as playOffBestOf,
-          PlayOffWinning as playOffWinning,
-          PlayOffFormat as playOffFormat,
           Deleted as deleted,
           DateCreated as dateCreated,
           DateModified as dateModified,
@@ -64,7 +65,7 @@ export class TournamentService {
         FROM Tournament 
         WHERE TournamentId = ?`;
       
-      db.get(sql, [id], (err: Error | null, row: TournamentModel) => {
+      db.get(sql, [id], (err: Error | null, row: any) => {
         if (err) {
           reject(err);
           return;
@@ -76,6 +77,12 @@ export class TournamentService {
         resolve(row);
       });
     });
+  }
+
+  public async getTournamentWithFormats(id: number): Promise<TournamentWithFormats> {
+    const tournament = await this.getTournamentById(id);
+    const formats = await this.formatService.getFormatsByTournamentId(id);
+    return { ...tournament, formats };
   }
 
   public async addTournament(tournament: TournamentModel): Promise<TournamentModel> {
@@ -92,28 +99,14 @@ export class TournamentService {
 
     return new Promise((resolve, reject) => {
       const sql = `INSERT INTO Tournament (
-        Name, Description, NumOfGroups, GroupScore, GroupMaxScore, 
-        GroupBestOf, GroupWinning, GroupOffBestOf,
-        PlayOffScore, PlayOffMaxScore, PlayOffBestOf,
-        PlayOffWinning, PlayOffFormat, Deleted,
+        Name, Description, Deleted,
         DateCreated, DateModified, DateDeleted,
         StartDate, EndDate, InvitationCode
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
       const params = [
         tournament.name,
         tournament.description,
-        tournament.numOfGroups,
-        tournament.groupScore,
-        tournament.groupMaxScore,
-        tournament.groupBestOf,
-        tournament.groupWinning,
-        tournament.groupOffBestOf,
-        tournament.playOffScore,
-        tournament.playOffMaxScore,
-        tournament.playOffBestOf,
-        tournament.playOffWinning,
-        tournament.playOffFormat,
         false, // Deleted
         tournament.dateCreated,
         tournament.dateModified,

@@ -10,6 +10,8 @@ import { NotificationService } from '@/services/notification/notification.servic
 import { ErrorService } from '@/services/error/error.service';
 import { useRouter } from 'next/navigation';
 import { formatDateForInput, formatDateForServer } from '@/utils/date.utils';
+import { FormatModel, defaultFormat } from '@/data-models/format.model';
+import FormatForm from '../../components/FormatForm';
 
 const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
   <div className="flex items-center">
@@ -22,18 +24,33 @@ export default function NewTournamentPage() {
   const t = useTranslations('NewTournament');
   const router = useRouter();
   
-  const [formData, setFormData] = useState<TournamentModel>(defaultTournament);
+  const [tournament, setTournament] = useState<TournamentModel>(defaultTournament);
+  const [formats, setFormats] = useState<FormatModel[]>([{ ...defaultFormat }]);
 
-  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
+  const handleTournamentChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
+    setTournament(prev => ({
       ...prev,
       [name]: e.target.type === 'datetime-local' 
         ? formatDateForServer(value)
-        : e.target.type === 'number' 
-        ? Number(value) 
         : value
     }));
+  };
+
+  const handleFormatUpdate = (index: number, updatedFormat: FormatModel) => {
+    setFormats(prev => {
+      const newFormats = [...prev];
+      newFormats[index] = updatedFormat;
+      return newFormats;
+    });
+  };
+
+  const handleAddFormat = () => {
+    setFormats(prev => [...prev, { ...defaultFormat }]);
+  };
+
+  const handleRemoveFormat = (index: number) => {
+    setFormats(prev => prev.filter((_, i) => i !== index));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -43,7 +60,7 @@ export default function NewTournamentPage() {
       const tournamentService = ServiceFactory.getTournamentService();
       
       await NotificationService.promise(
-        tournamentService.createTournament(formData),
+        tournamentService.createTournament({ tournament, formats }),
         {
           loading: t('notifications.creating'),
           success: t('notifications.created'),
@@ -51,7 +68,6 @@ export default function NewTournamentPage() {
         }
       );
 
-      // Redirect to tournaments list or show success message
       // router.push('/tournaments');
     } catch (error) {
       if (!ErrorService.isHttpError(error)) {
@@ -89,8 +105,8 @@ export default function NewTournamentPage() {
                       type="text"
                       id="name"
                       name="name"
-                      value={formData.name}
-                      onChange={handleInputChange}
+                      value={tournament.name}
+                      onChange={handleTournamentChange}
                       required
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     />
@@ -104,8 +120,8 @@ export default function NewTournamentPage() {
                       id="description"
                       name="description"
                       rows={3}
-                      value={formData.description}
-                      onChange={handleInputChange}
+                      value={tournament.description}
+                      onChange={handleTournamentChange}
                       className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                     />
                   </div>
@@ -117,8 +133,8 @@ export default function NewTournamentPage() {
                         type="datetime-local"
                         id="startDate"
                         name="startDate"
-                        value={formatDateForInput(formData.startDate)}
-                        onChange={handleInputChange}
+                        value={formatDateForInput(tournament.startDate)}
+                        onChange={handleTournamentChange}
                         required
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                       />
@@ -130,8 +146,8 @@ export default function NewTournamentPage() {
                         type="datetime-local"
                         id="endDate"
                         name="endDate"
-                        value={formatDateForInput(formData.endDate)}
-                        onChange={handleInputChange}
+                        value={formatDateForInput(tournament.endDate)}
+                        onChange={handleTournamentChange}
                         required
                         className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                       />
@@ -141,182 +157,35 @@ export default function NewTournamentPage() {
               </div>
             </div>
 
-            {/* Group Stage Settings */}
+            {/* Formats Section */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold flex items-center text-[#39846d]">
                 <span className="mr-2">
                   <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
                   </svg>
                 </span>
-                {t('groupStage')}
+                {t('formats.title')}
               </h2>
-              
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="numOfGroups" className="block text-sm font-medium text-gray-700">
-                      {t('numOfGroups')}
-                    </label>
-                    <input
-                      type="number"
-                      id="numOfGroups"
-                      name="numOfGroups"
-                      min="1"
-                      value={formData.numOfGroups}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
-                    />
-                  </div>
 
-                  <div>
-                    <label htmlFor="groupBestOf" className="block text-sm font-medium text-gray-700">
-                      {t('bestOf')}
-                    </label>
-                    <select
-                      id="groupBestOf"
-                      name="groupBestOf"
-                      value={formData.groupBestOf}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
-                    >
-                      {Object.values(BestOf)
-                        .filter(value => typeof value === 'number')
-                        .map(value => (
-                          <option key={value} value={value}>Best of {value}</option>
-                        ))
-                      }
-                    </select>
-                  </div>
+              <div className="space-y-4">
+                {formats.map((format, index) => (
+                  <FormatForm
+                    key={index}
+                    format={format}
+                    onUpdate={(updatedFormat) => handleFormatUpdate(index, updatedFormat)}
+                    onRemove={() => handleRemoveFormat(index)}
+                    showRemoveButton={formats.length > 1}
+                  />
+                ))}
 
-                  <div>
-                    <label htmlFor="groupWinning" className="block text-sm font-medium text-gray-700">
-                      {t('winningCondition')}
-                    </label>
-                    <select
-                      id="groupWinning"
-                      name="groupWinning"
-                      value={formData.groupWinning}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
-                    >
-                      <option value={WinningCondition.EXACT}>{t('exact')}</option>
-                      <option value={WinningCondition.TWO_POINTS_DIFFERENCE}>{t('twoPointsDifference')}</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="groupScore" className="block text-sm font-medium text-gray-700">
-                      {t('scorePerWin')}
-                    </label>
-                    <input
-                      type="number"
-                      id="groupScore"
-                      name="groupScore"
-                      min="0"
-                      value={formData.groupScore}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="groupMaxScore" className="block text-sm font-medium text-gray-700">
-                      {t('maxScore')}
-                    </label>
-                    <input
-                      type="number"
-                      id="groupMaxScore"
-                      name="groupMaxScore"
-                      min="0"
-                      value={formData.groupMaxScore}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
-                    />
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Playoff Settings */}
-            <div className="space-y-4">
-              <h2 className="text-xl font-semibold flex items-center text-[#39846d]">
-                <span className="mr-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                  </svg>
-                </span>
-                {t('playoffStage')}
-              </h2>
-              
-              <div className="bg-gray-50 p-6 rounded-lg">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div>
-                    <label htmlFor="playOffBestOf" className="block text-sm font-medium text-gray-700">
-                      {t('bestOf')}
-                    </label>
-                    <select
-                      id="playOffBestOf"
-                      name="playOffBestOf"
-                      value={formData.playOffBestOf}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
-                    >
-                      {Object.values(BestOf)
-                        .filter(value => typeof value === 'number')
-                        .map(value => (
-                          <option key={value} value={value}>Best of {value}</option>
-                        ))
-                      }
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="playOffFormat" className="block text-sm font-medium text-gray-700">
-                      {t('format')}
-                    </label>
-                    <select
-                      id="playOffFormat"
-                      name="playOffFormat"
-                      value={formData.playOffFormat}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
-                    >
-                      <option value={PlayOffFormat.SINGLE_ELIMINATION}>{t('singleElimination')}</option>
-                      <option value={PlayOffFormat.DOUBLE_ELIMINATION}>{t('doubleElimination')}</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label htmlFor="playOffScore" className="block text-sm font-medium text-gray-700">
-                      {t('scorePerWin')}
-                    </label>
-                    <input
-                      type="number"
-                      id="playOffScore"
-                      name="playOffScore"
-                      min="0"
-                      value={formData.playOffScore}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
-                    />
-                  </div>
-
-                  <div>
-                    <label htmlFor="playOffMaxScore" className="block text-sm font-medium text-gray-700">
-                      {t('maxScore')}
-                    </label>
-                    <input
-                      type="number"
-                      id="playOffMaxScore"
-                      name="playOffMaxScore"
-                      min="0"
-                      value={formData.playOffMaxScore}
-                      onChange={handleInputChange}
-                      className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
-                    />
-                  </div>
-                </div>
+                <button
+                  type="button"
+                  onClick={handleAddFormat}
+                  className="w-full py-2 px-4 border border-[#39846d] text-[#39846d] rounded-md hover:bg-[#39846d] hover:text-white transition-colors duration-200"
+                >
+                  {t('formats.addFormat')}
+                </button>
               </div>
             </div>
 

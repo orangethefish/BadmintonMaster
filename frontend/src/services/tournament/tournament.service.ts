@@ -1,11 +1,12 @@
 import { BaseApiService } from '../api/base.service';
 import { TournamentModel } from '@/data-models/tournament.model';
+import { CreateTournamentRequest } from '@/types/tournament.types';
 
 export class TournamentService extends BaseApiService {
   private readonly endpoint = '/tournaments';
 
-  async createTournament(tournament: TournamentModel): Promise<TournamentModel> {
-    return this.post<TournamentModel>(this.endpoint, tournament);
+  async createTournament(request: CreateTournamentRequest): Promise<TournamentModel> {
+    return this.post<TournamentModel>(this.endpoint, request);
   }
 
   async getTournament(id: number): Promise<TournamentModel> {

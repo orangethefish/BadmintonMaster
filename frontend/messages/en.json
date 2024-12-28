@@ -31,7 +31,20 @@
         "error": "Failed to create tournament"
       },
       "name": "Tournament Name",
-      "required": "Required fields are marked with *"
+      "required": "Required fields are marked with *",
+      "formats": {
+        "title": "Tournament Formats",
+        "addFormat": "Add Format",
+        "removeFormat": "Remove Format",
+        "type": "Format Type",
+        "types": {
+          "MEN_SINGLES": "Men's Singles",
+          "WOMEN_SINGLES": "Women's Singles",
+          "MEN_DOUBLES": "Men's Doubles",
+          "WOMEN_DOUBLES": "Women's Doubles",
+          "MIXED_DOUBLES": "Mixed Doubles"
+        }
+      }
     },
     "JoinTournament": {
       "title": "Join Tournament",
