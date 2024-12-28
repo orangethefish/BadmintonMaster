@@ -18,48 +18,17 @@ app.use(express.json());
 
 // Database setup
 const dbPath = join(__dirname, '../../db/database.sqlite');
-export const db = new sqlite3.Database(dbPath, async (err) => {
+export const db = new sqlite3.Database(dbPath, (err) => {
   if (err) {
     console.error('Error connecting to the database:', err);
   } else {
     console.log('Connected to SQLite database');
     
-    try {
-      // Enable foreign keys
-      await runQuery('PRAGMA foreign_keys = ON');
+    // Enable foreign keys
+    db.run('PRAGMA foreign_keys = ON');
 
-      // Create or update tables
-      await setupDatabase();
-    } catch (error) {
-      console.error('Error setting up database:', error);
-    }
-  }
-});
-
-// Helper function to run queries as promises
-function runQuery(sql: string, params: any[] = []): Promise<void> {
-  return new Promise((resolve, reject) => {
-    db.run(sql, params, (err) => {
-      if (err) {
-        reject(err);
-      } else {
-        resolve();
-      }
-    });
-  });
-}
-
-async function setupDatabase() {
-  // Create Tournament table if it doesn't exist
-  const tournamentTable = await new Promise<any>((resolve, reject) => {
-    db.get("SELECT sql FROM sqlite_master WHERE type='table' AND name='Tournament'", [], (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
-    });
-  });
-
-  if (!tournamentTable) {
-    await runQuery(`CREATE TABLE Tournament (
+    // Create Tournament table
+    db.run(`CREATE TABLE IF NOT EXISTS Tournament (
       TournamentId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
       Name VARCHAR(255) NOT NULL,
       Description VARCHAR(1000),
@@ -71,41 +40,9 @@ async function setupDatabase() {
       EndDate TEXT,
       InvitationCode BIGINT
     )`);
-  } else {
-    // Update existing Tournament table
-    const alterTournamentCommands = [
-      "ALTER TABLE Tournament ADD COLUMN IF NOT EXISTS Name VARCHAR(255)",
-      "ALTER TABLE Tournament ADD COLUMN IF NOT EXISTS Description VARCHAR(1000)",
-      "ALTER TABLE Tournament ADD COLUMN IF NOT EXISTS Deleted BOOLEAN DEFAULT false",
-      "ALTER TABLE Tournament ADD COLUMN IF NOT EXISTS DateCreated TEXT",
-      "ALTER TABLE Tournament ADD COLUMN IF NOT EXISTS DateModified TEXT",
-      "ALTER TABLE Tournament ADD COLUMN IF NOT EXISTS DateDeleted TEXT",
-      "ALTER TABLE Tournament ADD COLUMN IF NOT EXISTS StartDate TEXT",
-      "ALTER TABLE Tournament ADD COLUMN IF NOT EXISTS EndDate TEXT",
-      "ALTER TABLE Tournament ADD COLUMN IF NOT EXISTS InvitationCode BIGINT"
-    ];
 
-    for (const command of alterTournamentCommands) {
-      try {
-        await runQuery(command);
-      } catch (err: any) {
-        if (!err.message.includes('duplicate column name')) {
-          console.error(`Error executing ${command}:`, err);
-        }
-      }
-    }
-  }
-
-  // Create Format table if it doesn't exist
-  const formatTable = await new Promise<any>((resolve, reject) => {
-    db.get("SELECT sql FROM sqlite_master WHERE type='table' AND name='Format'", [], (err, result) => {
-      if (err) reject(err);
-      else resolve(result);
-    });
-  });
-
-  if (!formatTable) {
-    await runQuery(`CREATE TABLE Format (
+    // Create Format table
+    db.run(`CREATE TABLE IF NOT EXISTS Format (
       FormatId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
       TournamentId INTEGER NOT NULL,
       NumOfGroups INT,
@@ -126,61 +63,69 @@ async function setupDatabase() {
       FormatType INT,
       FOREIGN KEY (TournamentId) REFERENCES Tournament(TournamentId)
     )`);
-  } else {
-    // Update existing Format table
-    const alterFormatCommands = [
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS TournamentId INTEGER",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS NumOfGroups INT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS GroupScore INT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS GroupMaxScore INT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS GroupBestOf INT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS GroupWinningCondition INT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS GroupOffBestOf INT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS PlayOffScore INT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS PlayOffMaxScore INT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS PlayOffBestOf INT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS PlayOffWinningCondition INT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS PlayOffFormat INT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS Deleted BOOLEAN DEFAULT false",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS DateCreated TEXT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS DateModified TEXT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS DateDeleted TEXT",
-      "ALTER TABLE Format ADD COLUMN IF NOT EXISTS FormatType INT"
+
+    // Create Group table
+    db.run(`CREATE TABLE IF NOT EXISTS "Group" (
+      GroupId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      FormatId INTEGER NOT NULL,
+      GroupName VARCHAR(255),
+      NumOfTeams INT,
+      FOREIGN KEY (FormatId) REFERENCES Format(FormatId)
+    )`);
+
+    // Create Team table
+    db.run(`CREATE TABLE IF NOT EXISTS Team (
+      TeamId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      GroupId INTEGER NOT NULL,
+      Player1Name VARCHAR(255) NOT NULL,
+      Player2Name VARCHAR(255),
+      FOREIGN KEY (GroupId) REFERENCES "Group"(GroupId)
+    )`);
+
+    // Create Match table
+    db.run(`CREATE TABLE IF NOT EXISTS Match (
+      MatchId VARCHAR(36) PRIMARY KEY NOT NULL,
+      ParentMatchId VARCHAR(36),
+      FormatId INTEGER NOT NULL,
+      GroupId INTEGER,
+      Team1Id INTEGER,
+      Team2Id INTEGER,
+      Team1FinalScore INTEGER,
+      Team2FinalScore INTEGER,
+      UmpireId VARCHAR(36),
+      CourtNum VARCHAR(255),
+      WinnerId INTEGER,
+      Result INTEGER,
+      ExtendData VARCHAR(2000),
+      FOREIGN KEY (FormatId) REFERENCES Format(FormatId),
+      FOREIGN KEY (GroupId) REFERENCES "Group"(GroupId),
+      FOREIGN KEY (Team1Id) REFERENCES Team(TeamId),
+      FOREIGN KEY (Team2Id) REFERENCES Team(TeamId)
+    )`);
+
+    // Update existing date columns to TEXT format
+    const updateDateCommands = [
+      // Tournament dates
+      "UPDATE Tournament SET DateCreated = datetime(DateCreated) WHERE DateCreated IS NOT NULL AND typeof(DateCreated) != 'text'",
+      "UPDATE Tournament SET DateModified = datetime(DateModified) WHERE DateModified IS NOT NULL AND typeof(DateModified) != 'text'",
+      "UPDATE Tournament SET DateDeleted = datetime(DateDeleted) WHERE DateDeleted IS NOT NULL AND typeof(DateDeleted) != 'text'",
+      "UPDATE Tournament SET StartDate = datetime(StartDate) WHERE StartDate IS NOT NULL AND typeof(StartDate) != 'text'",
+      "UPDATE Tournament SET EndDate = datetime(EndDate) WHERE EndDate IS NOT NULL AND typeof(EndDate) != 'text'",
+      // Format dates
+      "UPDATE Format SET DateCreated = datetime(DateCreated) WHERE DateCreated IS NOT NULL AND typeof(DateCreated) != 'text'",
+      "UPDATE Format SET DateModified = datetime(DateModified) WHERE DateModified IS NOT NULL AND typeof(DateModified) != 'text'",
+      "UPDATE Format SET DateDeleted = datetime(DateDeleted) WHERE DateDeleted IS NOT NULL AND typeof(DateDeleted) != 'text'"
     ];
 
-    for (const command of alterFormatCommands) {
-      try {
-        await runQuery(command);
-      } catch (err: any) {
-        if (!err.message.includes('duplicate column name')) {
+    updateDateCommands.forEach(command => {
+      db.run(command, [], (err) => {
+        if (err) {
           console.error(`Error executing ${command}:`, err);
         }
-      }
-    }
+      });
+    });
   }
-
-  // After tables are created, update date formats
-  const updateDateCommands = [
-    // Tournament dates
-    "UPDATE Tournament SET DateCreated = datetime(DateCreated) WHERE DateCreated IS NOT NULL AND typeof(DateCreated) != 'text'",
-    "UPDATE Tournament SET DateModified = datetime(DateModified) WHERE DateModified IS NOT NULL AND typeof(DateModified) != 'text'",
-    "UPDATE Tournament SET DateDeleted = datetime(DateDeleted) WHERE DateDeleted IS NOT NULL AND typeof(DateDeleted) != 'text'",
-    "UPDATE Tournament SET StartDate = datetime(StartDate) WHERE StartDate IS NOT NULL AND typeof(StartDate) != 'text'",
-    "UPDATE Tournament SET EndDate = datetime(EndDate) WHERE EndDate IS NOT NULL AND typeof(EndDate) != 'text'",
-    // Format dates
-    "UPDATE Format SET DateCreated = datetime(DateCreated) WHERE DateCreated IS NOT NULL AND typeof(DateCreated) != 'text'",
-    "UPDATE Format SET DateModified = datetime(DateModified) WHERE DateModified IS NOT NULL AND typeof(DateModified) != 'text'",
-    "UPDATE Format SET DateDeleted = datetime(DateDeleted) WHERE DateDeleted IS NOT NULL AND typeof(DateDeleted) != 'text'"
-  ];
-
-  for (const command of updateDateCommands) {
-    try {
-      await runQuery(command);
-    } catch (err) {
-      console.error(`Error executing ${command}:`, err);
-    }
-  }
-}
+});
 
 // Initialize controllers
 const tournamentController = new TournamentController();

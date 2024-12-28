@@ -20,4 +20,10 @@ export enum FormatType {
   MEN_DOUBLES = 2,
   WOMEN_DOUBLES = 3,
   MIXED_DOUBLES = 4
+}
+
+export enum TournamentCreationStep {
+  TOURNAMENT_INFO = 0,
+  FORMATS = 1,
+  GROUPS_AND_TEAMS = 2
 } 

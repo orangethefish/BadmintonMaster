@@ -45,7 +45,25 @@
           "WOMEN_DOUBLES": "Đôi Nữ",
           "MIXED_DOUBLES": "Đôi Nam Nữ"
         }
-      }
+      },
+      "steps": {
+        "tournamentInfo": "Thông Tin Giải Đấu",
+        "formats": "Thể Thức",
+        "groupsAndTeams": "Bảng Đấu & Đội"
+      },
+      "groupsAndTeams": {
+        "title": "Thiết lập bảng đấu",
+        "groupName": "Tên Nhóm",
+        "numOfTeams": "Số Đội Tham Gia",
+        "addGroup": "Thêm Nhóm",
+        "removeGroup": "Loại Nhóm",
+        "player1": "Thành Viên 1",
+        "player2": "Thành Viên 2 (Chỉ dành cho đánh đôi)",
+        "teamSection": "Thành viên trong đội"
+      },
+      "next": "Bước tiếp theo",
+      "back": "Quay lại",
+      "finish": "Kết thúc"
     },
     "JoinTournament": {
       "title": "Tham Gia Giải Đấu",

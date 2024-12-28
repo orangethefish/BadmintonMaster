@@ -44,7 +44,25 @@
           "WOMEN_DOUBLES": "Women's Doubles",
           "MIXED_DOUBLES": "Mixed Doubles"
         }
-      }
+      },
+      "steps": {
+        "tournamentInfo": "Tournament Info",
+        "formats": "Formats",
+        "groupsAndTeams": "Groups & Teams"
+      },
+      "groupsAndTeams": {
+        "title": "Groups & Teams Setup",
+        "groupName": "Group Name",
+        "numOfTeams": "Number of Teams",
+        "addGroup": "Add Group",
+        "removeGroup": "Remove Group",
+        "player1": "Player 1",
+        "player2": "Player 2 (Doubles Only)",
+        "teamSection": "Teams in Group"
+      },
+      "next": "Next",
+      "back": "Back",
+      "finish": "Finish"
     },
     "JoinTournament": {
       "title": "Join Tournament",
