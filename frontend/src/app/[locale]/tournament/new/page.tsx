@@ -2,7 +2,7 @@
 
 import { useTranslations } from 'next-intl';
 import { Link } from '@src/i18n/routing';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { TournamentModel, defaultTournament } from '@/data-models/tournament.model';
 import { FormatModel, defaultFormat } from '@/data-models/format.model';
 import { TournamentCreationStep } from '@/enums/tournament.enum';
@@ -16,6 +16,11 @@ import StepsBar from '../../components/StepsBar';
 import GroupTeamForm from '../../components/GroupTeamForm';
 import { motion, AnimatePresence } from 'framer-motion';
 import TournamentInfoForm from '../../components/TournamentInfoForm';
+import { GroupModel, TeamModel } from '@/data-models/tournament.model';
+
+interface PageProps {
+  tournamentId?: number;  // Optional ID for editing existing tournament
+}
 
 const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
   <div className="flex items-center">
@@ -24,14 +29,35 @@ const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
   </div>
 );
 
-export default function NewTournamentPage() {
+export default function NewTournamentPage({ tournamentId }: PageProps) {
   const t = useTranslations('NewTournament');
   const router = useRouter();
   
   const [currentStep, setCurrentStep] = useState(TournamentCreationStep.TOURNAMENT_INFO);
   const [tournament, setTournament] = useState<TournamentModel>(defaultTournament);
   const [formats, setFormats] = useState<FormatModel[]>([{ ...defaultFormat }]);
-  const [groups, setGroups] = useState<any[]>([]);  // Replace 'any' with your group type
+  const [groups, setGroups] = useState<GroupModel[]>([]);
+  const [teams, setTeams] = useState<TeamModel[]>([]);
+
+  // Fetch existing data if editing
+  useEffect(() => {
+    const fetchTournament = async () => {
+      if (tournamentId) {
+        try {
+          const tournamentService = ServiceFactory.getTournamentService();
+          const data = await tournamentService.getTournament(tournamentId);
+          setTournament(data);
+          setFormats(data.formats || [{ ...defaultFormat }]);
+          setGroups(data.groups || []);
+          setTeams(data.teams || []);
+        } catch (error) {
+          NotificationService.error(ErrorService.handle(error));
+        }
+      }
+    };
+
+    fetchTournament();
+  }, [tournamentId]);
 
   const handleTournamentChange = (field: string, value: string) => {
     setTournament(prev => ({
@@ -67,10 +93,15 @@ export default function NewTournamentPage() {
       const tournamentService = ServiceFactory.getTournamentService();
       
       await NotificationService.promise(
-        tournamentService.createTournament({ tournament, formats }),
+        tournamentService.saveTournament({
+          tournament,
+          formats,
+          groups,
+          teams
+        }),
         {
-          loading: t('notifications.creating'),
-          success: t('notifications.created'),
+          loading: t('notifications.saving'),
+          success: t('notifications.saved'),
           error: (err) => ErrorService.handle(err),
         }
       );
@@ -142,9 +173,8 @@ export default function NewTournamentPage() {
             {formats.map((format, index) => (
               <GroupTeamForm
                 key={index}
-                formatId={format.formatId || 0}
-                formatType={format.formatType}
-                onUpdate={handleGroupsUpdate}
+                format={format}
+                onUpdate={(updatedGroups) => handleGroupsUpdate(updatedGroups)}
               />
             ))}
           </motion.div>

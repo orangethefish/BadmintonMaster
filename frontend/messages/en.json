@@ -28,7 +28,11 @@
       "notifications": {
         "creating": "Creating tournament...",
         "created": "Tournament created successfully!",
-        "error": "Failed to create tournament"
+        "updating": "Updating tournament...",
+        "updated": "Tournament updated successfully!",
+        "error": "Failed to save tournament",
+        "saving": "Saving tournament...",
+        "saved": "Tournament saved successfully!"
       },
       "name": "Tournament Name",
       "required": "Required fields are marked with *",
@@ -58,7 +62,14 @@
         "removeGroup": "Remove Group",
         "player1": "Player 1",
         "player2": "Player 2 (Doubles Only)",
-        "teamSection": "Teams in Group"
+        "teamSection": "Teams in Group",
+        "types": {
+          "MEN_SINGLES": "Men's Singles",
+          "WOMEN_SINGLES": "Women's Singles",
+          "MEN_DOUBLES": "Men's Doubles",
+          "WOMEN_DOUBLES": "Women's Doubles",
+          "MIXED_DOUBLES": "Mixed Doubles"
+        }
       },
       "next": "Next",
       "back": "Back",

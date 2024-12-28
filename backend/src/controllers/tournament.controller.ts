@@ -22,14 +22,14 @@ export class TournamentController {
     try {
       const { tournament, formats } = req.body as CreateTournamentRequest;
       
-      // Create tournament first
-      const createdTournament = await this.tournamentService.addTournament(tournament);
+      // Create or update tournament
+      const createdTournament = await this.tournamentService.addOrUpdateTournament(tournament);
 
-      // Create formats with the tournament ID
+      // Create or update formats with the tournament ID
       const createdFormats = await Promise.all(
         formats.map(format => {
           format.tournamentId = createdTournament.tournamentId!;
-          return this.formatService.addFormat(format);
+          return this.formatService.addOrUpdateFormat(format);
         })
       );
 
@@ -40,7 +40,11 @@ export class TournamentController {
       });
     } catch (error) {
       console.error('Error in add tournament:', error);
-      res.status(500).json({ error: 'Internal server error' });
+      if (error instanceof Error && error.message.includes('Invitation code')) {
+        res.status(400).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
     }
   }
 } 

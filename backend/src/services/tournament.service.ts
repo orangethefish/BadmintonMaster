@@ -15,16 +15,21 @@ export class TournamentService {
     this.formatService = new FormatService();
   }
 
-  private async isInvitationCodeActive(code: number): Promise<boolean> {
+  private async isInvitationCodeActive(code: number, excludeTournamentId?: number): Promise<boolean> {
     return new Promise((resolve, reject) => {
       const sql = `
         SELECT COUNT(*) as count 
         FROM Tournament 
         WHERE InvitationCode = ? 
         AND Deleted = false 
-        AND datetime(EndDate) > datetime('now')`;
+        AND datetime(EndDate) > datetime('now')
+        ${excludeTournamentId ? 'AND TournamentId != ?' : ''}`;
       
-      db.get(sql, [code], (err: Error | null, result: { count: number }) => {
+      const params = excludeTournamentId 
+        ? [code, excludeTournamentId]
+        : [code];
+
+      db.get(sql, params, (err: Error | null, result: { count: number }) => {
         if (err) {
           reject(err);
           return;
@@ -85,7 +90,24 @@ export class TournamentService {
     return { ...tournament, formats };
   }
 
-  public async addTournament(tournament: TournamentModel): Promise<TournamentModel> {
+  public async addOrUpdateTournament(tournament: TournamentModel): Promise<TournamentModel> {
+    // Check if tournament exists if ID is provided
+    if (tournament.tournamentId) {
+      try {
+        await this.getTournamentById(tournament.tournamentId);
+        return this.updateTournament(tournament);
+      } catch (error) {
+        // If tournament not found, proceed with creation
+        if (error.message === 'Tournament not found') {
+          return this.createTournament(tournament);
+        }
+        throw error;
+      }
+    }
+    return this.createTournament(tournament);
+  }
+
+  private async createTournament(tournament: TournamentModel): Promise<TournamentModel> {
     // Generate invitation code if not provided
     if (!tournament.invitationCode) {
       tournament.invitationCode = await this.generateUniqueInvitationCode();
@@ -126,6 +148,56 @@ export class TournamentService {
         try {
           const createdTournament = await self.getTournamentById(this.lastID);
           resolve(createdTournament);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+  }
+
+  private async updateTournament(tournament: TournamentModel): Promise<TournamentModel> {
+    // Verify invitation code if changed
+    if (tournament.invitationCode) {
+      const isActive = await this.isInvitationCodeActive(tournament.invitationCode, tournament.tournamentId);
+      if (isActive) {
+        throw new Error('Invitation code is already in use by an active tournament');
+      }
+    }
+
+    return new Promise((resolve, reject) => {
+      const sql = `UPDATE Tournament SET
+        Name = ?,
+        Description = ?,
+        DateModified = ?,
+        StartDate = ?,
+        EndDate = ?,
+        InvitationCode = ?
+        WHERE TournamentId = ?`;
+
+      const params = [
+        tournament.name,
+        tournament.description,
+        tournament.dateModified,
+        tournament.startDate,
+        tournament.endDate,
+        tournament.invitationCode,
+        tournament.tournamentId
+      ];
+
+      const self = this;
+      db.run(sql, params, async function(this: RunResult, err: Error | null) {
+        if (err) {
+          console.error('Error updating tournament:', err);
+          reject(err);
+          return;
+        }
+        if (this.changes === 0) {
+          reject(new Error('Tournament not found'));
+          return;
+        }
+        try {
+          const updatedTournament = await self.getTournamentById(tournament.tournamentId!);
+          resolve(updatedTournament);
         } catch (error) {
           reject(error);
         }

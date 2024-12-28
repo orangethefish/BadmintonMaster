@@ -2,7 +2,8 @@
 
 import { FormatType } from '@/enums/tournament.enum';
 import { useTranslations } from 'next-intl';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
+import { FormatModel } from '@/data-models/format.model';
 
 interface Team {
   player1Name: string;
@@ -16,24 +17,30 @@ interface Group {
 }
 
 interface GroupTeamFormProps {
-  formatId: number;
-  formatType: FormatType;
+  format: FormatModel;
   onUpdate: (groups: Group[]) => void;
 }
 
-export default function GroupTeamForm({ formatId, formatType, onUpdate }: GroupTeamFormProps) {
+export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) {
   const t = useTranslations('NewTournament.groupsAndTeams');
-  const [groups, setGroups] = useState<Group[]>([{
-    groupName: 'Group A',
-    numOfTeams: 4,
-    teams: Array(4).fill({ player1Name: '', player2Name: '' })
-  }]);
+  const [groups, setGroups] = useState<Group[]>([]);
 
   const isDoubles = [
     FormatType.MEN_DOUBLES,
     FormatType.WOMEN_DOUBLES,
     FormatType.MIXED_DOUBLES
-  ].includes(formatType);
+  ].includes(format.formatType);
+
+  // Initialize or update groups when format changes
+  useEffect(() => {
+    const initialGroups = Array(format.numOfGroups).fill(null).map((_, index) => ({
+      groupName: `Group ${String.fromCharCode(65 + index)}`, // A, B, C, etc.
+      numOfTeams: 4,
+      teams: Array(4).fill({ player1Name: '', player2Name: '' })
+    }));
+    setGroups(initialGroups);
+    onUpdate(initialGroups);
+  }, [format.numOfGroups]);
 
   const handleGroupChange = (index: number, field: keyof Group, value: string | number) => {
     const newGroups = [...groups];
@@ -58,36 +65,25 @@ export default function GroupTeamForm({ formatId, formatType, onUpdate }: GroupT
     onUpdate(newGroups);
   };
 
-  const addGroup = () => {
-    const newGroup: Group = {
-      groupName: `Group ${String.fromCharCode(65 + groups.length)}`, // A, B, C, etc.
-      numOfTeams: 4,
-      teams: Array(4).fill({ player1Name: '', player2Name: '' })
-    };
-    setGroups([...groups, newGroup]);
-  };
-
-  const removeGroup = (index: number) => {
-    const newGroups = groups.filter((_, i) => i !== index);
-    setGroups(newGroups);
-    onUpdate(newGroups);
-  };
-
   return (
     <div className="space-y-6">
+      <h2 className="text-xl font-semibold flex items-center text-[#39846d]">
+        <span className="mr-2">
+          <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+          </svg>
+        </span>
+        {format.formatType === FormatType.MEN_SINGLES ? t('types.MEN_SINGLES') :
+         format.formatType === FormatType.WOMEN_SINGLES ? t('types.WOMEN_SINGLES') :
+         format.formatType === FormatType.MEN_DOUBLES ? t('types.MEN_DOUBLES') :
+         format.formatType === FormatType.WOMEN_DOUBLES ? t('types.WOMEN_DOUBLES') :
+         t('types.MIXED_DOUBLES')}
+      </h2>
+
       {groups.map((group, groupIndex) => (
         <div key={groupIndex} className="bg-gray-50 p-6 rounded-lg space-y-6">
           <div className="flex justify-between items-center">
             <h3 className="text-lg font-medium text-gray-900">{group.groupName}</h3>
-            {groups.length > 1 && (
-              <button
-                type="button"
-                onClick={() => removeGroup(groupIndex)}
-                className="text-red-600 hover:text-red-800"
-              >
-                {t('removeGroup')}
-              </button>
-            )}
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -147,14 +143,6 @@ export default function GroupTeamForm({ formatId, formatType, onUpdate }: GroupT
           </div>
         </div>
       ))}
-
-      <button
-        type="button"
-        onClick={addGroup}
-        className="w-full py-2 px-4 border border-[#39846d] text-[#39846d] rounded-md hover:bg-[#39846d] hover:text-white transition-colors duration-200"
-      >
-        {t('addGroup')}
-      </button>
     </div>
   );
 } 

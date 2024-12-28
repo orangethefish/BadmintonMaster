@@ -29,7 +29,11 @@
       "notifications": {
         "creating": "Đang tạo giải đấu...",
         "created": "Tạo giải đấu thành công!",
-        "error": "Không thể tạo giải đấu"
+        "updating": "Đang cập nhật giải đấu...",
+        "updated": "Cập nhật giải đấu thành công!",
+        "error": "Không thể lưu giải đấu",
+        "saving": "Đang lưu giải đấu...",
+        "saved": "Lưu giải đấu thành công!"
       },
       "name": "Tên Giải Đấu",
       "required": "Các trường bắt buộc được đánh dấu bằng *",
@@ -59,7 +63,14 @@
         "removeGroup": "Loại Nhóm",
         "player1": "Thành Viên 1",
         "player2": "Thành Viên 2 (Chỉ dành cho đánh đôi)",
-        "teamSection": "Thành viên trong đội"
+        "teamSection": "Thành viên trong đội",
+        "types": {
+          "MEN_SINGLES": "Đơn Nam",
+          "WOMEN_SINGLES": "Đơn Nữ",
+          "MEN_DOUBLES": "Đôi Nam",
+          "WOMEN_DOUBLES": "Đôi Nữ",
+          "MIXED_DOUBLES": "Đôi Nam Nữ"
+        }
       },
       "next": "Bước tiếp theo",
       "back": "Quay lại",
