@@ -5,6 +5,7 @@ import {routing} from '@src/i18n/routing';
 import {Metadata} from 'next';
 import HeaderComponent from './components/HeaderComponent';
 import { Toaster } from 'react-hot-toast';
+import { param } from 'framer-motion/client';
 
 export const metadata: Metadata = {
   icons: {
@@ -14,11 +15,12 @@ export const metadata: Metadata = {
 
 export default async function LocaleLayout({
   children,
-  params: {locale}
+  params
 }: {
   children: React.ReactNode;
-  params: {locale: string};
+  params: Promise<{locale: string}>;
 }) {
+  const { locale } = await params;
   if (!routing.locales.includes(locale as any)) {
     notFound();
   }

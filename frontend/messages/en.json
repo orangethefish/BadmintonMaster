@@ -1,87 +1,89 @@
 {
-    "Index": {
-      "title": "Tournament Hub",
-      "subtitle": "Create or join a tournament to get started",
-      "createButton": "Create New Tournament",
-      "joinButton": "Join Existing Tournament"
+  "Index": {
+    "title": "Tournament Hub",
+    "subtitle": "Create or join a tournament to get started",
+    "createButton": "Create New Tournament",
+    "joinButton": "Join Existing Tournament",
+    "createDescription": "Create and manage your own badminton tournament with customizable settings.",
+    "joinDescription": "Join an existing tournament using an invitation code from the organizer."
+  },
+  "NewTournament": {
+    "title": "Create New Tournament",
+    "basicInfo": "Basic Information",
+    "description": "Description",
+    "startDate": "Start Date",
+    "endDate": "End Date",
+    "groupStage": "Group Stage Settings",
+    "numOfGroups": "Number of Groups",
+    "bestOf": "Best of",
+    "winningCondition": "Winning Condition",
+    "scorePerWin": "Score Per Win",
+    "maxScore": "Maximum Score",
+    "playoffStage": "Playoff Settings",
+    "format": "Format",
+    "exact": "Exact",
+    "twoPointsDifference": "Two Points Difference",
+    "singleElimination": "Single Elimination",
+    "doubleElimination": "Double Elimination",
+    "createButton": "Create Tournament",
+    "cancelButton": "Cancel",
+    "notifications": {
+      "creating": "Creating tournament...",
+      "created": "Tournament created successfully!",
+      "updating": "Updating tournament...",
+      "updated": "Tournament updated successfully!",
+      "error": "Failed to save tournament",
+      "saving": "Saving tournament...",
+      "saved": "Tournament saved successfully!"
     },
-    "NewTournament": {
-      "title": "Create New Tournament",
-      "basicInfo": "Basic Information",
-      "description": "Description",
-      "startDate": "Start Date",
-      "endDate": "End Date",
-      "groupStage": "Group Stage Settings",
-      "numOfGroups": "Number of Groups",
-      "bestOf": "Best of",
-      "winningCondition": "Winning Condition",
-      "scorePerWin": "Score Per Win",
-      "maxScore": "Maximum Score",
-      "playoffStage": "Playoff Settings",
-      "format": "Format",
-      "exact": "Exact",
-      "twoPointsDifference": "Two Points Difference",
-      "singleElimination": "Single Elimination",
-      "doubleElimination": "Double Elimination",
-      "createButton": "Create Tournament",
-      "cancelButton": "Cancel",
-      "notifications": {
-        "creating": "Creating tournament...",
-        "created": "Tournament created successfully!",
-        "updating": "Updating tournament...",
-        "updated": "Tournament updated successfully!",
-        "error": "Failed to save tournament",
-        "saving": "Saving tournament...",
-        "saved": "Tournament saved successfully!"
-      },
-      "name": "Tournament Name",
-      "required": "Required fields are marked with *",
-      "formats": {
-        "title": "Tournament Formats",
-        "addFormat": "Add Format",
-        "removeFormat": "Remove Format",
-        "type": "Format Type",
-        "types": {
-          "MEN_SINGLES": "Men's Singles",
-          "WOMEN_SINGLES": "Women's Singles",
-          "MEN_DOUBLES": "Men's Doubles",
-          "WOMEN_DOUBLES": "Women's Doubles",
-          "MIXED_DOUBLES": "Mixed Doubles"
-        }
-      },
-      "steps": {
-        "tournamentInfo": "Tournament Info",
-        "formats": "Formats",
-        "groupsAndTeams": "Groups & Teams"
-      },
-      "groupsAndTeams": {
-        "title": "Groups & Teams Setup",
-        "groupName": "Group Name",
-        "numOfTeams": "Number of Teams",
-        "addGroup": "Add Group",
-        "removeGroup": "Remove Group",
-        "player1": "Player 1",
-        "player2": "Player 2 (Doubles Only)",
-        "teamSection": "Teams in Group",
-        "types": {
-          "MEN_SINGLES": "Men's Singles",
-          "WOMEN_SINGLES": "Women's Singles",
-          "MEN_DOUBLES": "Men's Doubles",
-          "WOMEN_DOUBLES": "Women's Doubles",
-          "MIXED_DOUBLES": "Mixed Doubles"
-        }
-      },
-      "next": "Next",
-      "back": "Back",
-      "finish": "Finish"
+    "name": "Tournament Name",
+    "required": "Required fields are marked with *",
+    "formats": {
+      "title": "Tournament Formats",
+      "addFormat": "Add Format",
+      "removeFormat": "Remove Format",
+      "type": "Format Type",
+      "types": {
+        "MEN_SINGLES": "Men's Singles",
+        "WOMEN_SINGLES": "Women's Singles",
+        "MEN_DOUBLES": "Men's Doubles",
+        "WOMEN_DOUBLES": "Women's Doubles",
+        "MIXED_DOUBLES": "Mixed Doubles"
+      }
     },
-    "JoinTournament": {
-      "title": "Join Tournament",
-      "codeLabel": "Tournament Code",
-      "codePlaceholder": "Enter tournament code",
-      "nameLabel": "Your Name",
-      "namePlaceholder": "Enter your name",
-      "joinButton": "Join Tournament",
-      "cancelButton": "Cancel"
-    }
+    "steps": {
+      "tournamentInfo": "Tournament Info",
+      "formats": "Formats",
+      "groupsAndTeams": "Groups & Teams"
+    },
+    "groupsAndTeams": {
+      "title": "Groups & Teams Setup",
+      "groupName": "Group Name",
+      "numOfTeams": "Number of Teams",
+      "addGroup": "Add Group",
+      "removeGroup": "Remove Group",
+      "player1": "Player 1",
+      "player2": "Player 2 (Doubles Only)",
+      "teamSection": "Teams in Group",
+      "types": {
+        "MEN_SINGLES": "Men's Singles",
+        "WOMEN_SINGLES": "Women's Singles",
+        "MEN_DOUBLES": "Men's Doubles",
+        "WOMEN_DOUBLES": "Women's Doubles",
+        "MIXED_DOUBLES": "Mixed Doubles"
+      }
+    },
+    "next": "Next",
+    "back": "Back",
+    "finish": "Finish"
+  },
+  "JoinTournament": {
+    "title": "Join Tournament",
+    "codeLabel": "Tournament Code",
+    "codePlaceholder": "Enter tournament code",
+    "nameLabel": "Your Name",
+    "namePlaceholder": "Enter your name",
+    "joinButton": "Join Tournament",
+    "cancelButton": "Cancel"
   }
+}

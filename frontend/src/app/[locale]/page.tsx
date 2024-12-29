@@ -40,7 +40,7 @@ export default function HomePage() {
                 {t('createButton')}
               </h2>
               <p className="text-gray-600 mb-6">
-                Create and manage your own badminton tournament with customizable settings.
+                {t('createDescription')}
               </p>
               <Link href="/tournament/new">
                 <button className="w-full bg-[#39846d] text-white rounded-lg py-3 px-4 hover:bg-[#2c6353] transition-colors duration-200 font-medium text-lg">
@@ -72,7 +72,7 @@ export default function HomePage() {
                 {t('joinButton')}
               </h2>
               <p className="text-gray-600 mb-6">
-                Join an existing tournament using an invitation code from the organizer.
+                {t('joinDescription')}
               </p>
               <Link href="/tournament/join">
                 <button className="w-full bg-white text-[#39846d] border-2 border-[#39846d] rounded-lg py-3 px-4 hover:bg-[#39846d] hover:text-white transition-colors duration-200 font-medium text-lg">

@@ -1,88 +1,92 @@
 {
-    "Index": {
-      "title": "Tournament Hub",
-      "subtitle": "Tạo hoặc tham gia giải đấu để bắt đầu",
-      "createButton": "Tạo giải đấu mới",
-      "joinButton": "Tham gia giải đấu"
+  "Index": {
+    "title": "Tournament Hub",
+    "subtitle": "Tạo hoặc tham gia giải đấu để bắt đầu",
+    "createButton": "Tạo giải đấu mới",
+    "joinButton": "Tham gia giải đấu",
+    "createDescription": "Tạo và quản lý giải đấu cầu lông của riêng bạn với các cài đặt tùy chỉnh.",
+    "joinDescription": "Tham gia làm trọng tài cho giải đấu đang diễn ra bằng mã mời từ tổ chức."
+  },
+  "NewTournament": {
+    "title": "Tạo Giải Đấu Mới",
+    "basicInfo": "Thông Tin Cơ Bản",
+    "description": "Mô tả",
+    "startDate": "Ngày Bắt Đầu",
+    "endDate": "Ngày Kết Thúc",
+    "groupStage": "Cài Đặt Vòng Bảng",
+    "numOfGroups": "Số Lượng Bảng",
+    "bestOf": "Thể Thức",
+    "winningCondition": "Điều Kiện Thắng",
+    "scorePerWin": "Điểm Mỗi Trận Thắng",
+    "maxScore": "Điểm Tối Đa",
+    "playoffStage": "Cài Đặt Vòng Playoff",
+    "format": "Định Dạng",
+    "exact": "Điểm chính xác",
+    "twoPointsDifference": "Thắng cách biệt 2 điểm",
+    "wins": "Số Trận Thắng",
+    "singleElimination": "Loại Trực Tiếp",
+    "doubleElimination": "Nhánh Thua",
+    "createButton": "Tạo Giải Đấu",
+    "cancelButton": "Hủy Bỏ",
+    "notifications": {
+      "creating": "Đang tạo giải đấu...",
+      "created": "Tạo giải đấu thành công!",
+      "updating": "Đang cập nhật giải đấu...",
+      "updated": "Cập nhật giải đấu thành công!",
+      "error": "Không thể lưu giải đấu",
+      "saving": "Đang lưu giải đấu...",
+      "saved": "Lưu thành công!",
+      "savingGroups": "Đang lưu",
+      "groupsSaved": "Lưu thành công!"
     },
-    "NewTournament": {
-      "title": "Tạo Giải Đấu Mới",
-      "basicInfo": "Thông Tin Cơ Bản",
-      "description": "Mô Tả",
-      "startDate": "Ngày Bắt Đầu",
-      "endDate": "Ngày Kết Thúc",
-      "groupStage": "Cài Đặt Vòng Bảng",
-      "numOfGroups": "Số Lượng Bảng",
-      "bestOf": "Thể Thức",
-      "winningCondition": "Điều Kiện Thắng",
-      "scorePerWin": "Điểm Mỗi Trận Thắng",
-      "maxScore": "Điểm Tối Đa",
-      "playoffStage": "Cài Đặt Vòng Playoff",
-      "format": "Định Dạng",
-      "exact": "Điểm chính xác",
-      "twoPointsDifference": "Thắng cách biệt 2 điểm",
-      "wins": "Số Trận Thắng",
-      "singleElimination": "Loại Trực Tiếp",
-      "doubleElimination": "Nhánh Thua",
-      "createButton": "Tạo Giải Đấu",
-      "cancelButton": "Hủy Bỏ",
-      "notifications": {
-        "creating": "Đang tạo giải đấu...",
-        "created": "Tạo giải đấu thành công!",
-        "updating": "Đang cập nhật giải đấu...",
-        "updated": "Cập nhật giải đấu thành công!",
-        "error": "Không thể lưu giải đấu",
-        "saving": "Đang lưu giải đấu...",
-        "saved": "Lưu giải đấu thành công!"
-      },
-      "name": "Tên Giải Đấu",
-      "required": "Các trường bắt buộc được đánh dấu bằng *",
-      "formats": {
-        "title": "Thể Thức Thi Đấu",
-        "addFormat": "Thêm Thể Thức",
-        "removeFormat": "Xóa Thể Thức",
-        "type": "Loại Thể Thức",
-        "types": {
-          "MEN_SINGLES": "Đơn Nam",
-          "WOMEN_SINGLES": "Đơn Nữ",
-          "MEN_DOUBLES": "Đôi Nam",
-          "WOMEN_DOUBLES": "Đôi Nữ",
-          "MIXED_DOUBLES": "Đôi Nam Nữ"
-        }
-      },
-      "steps": {
-        "tournamentInfo": "Thông Tin Giải Đấu",
-        "formats": "Thể Thức",
-        "groupsAndTeams": "Bảng Đấu & Đội"
-      },
-      "groupsAndTeams": {
-        "title": "Thiết lập bảng đấu",
-        "groupName": "Tên Nhóm",
-        "numOfTeams": "Số Đội Tham Gia",
-        "addGroup": "Thêm Nhóm",
-        "removeGroup": "Loại Nhóm",
-        "player1": "Thành Viên 1",
-        "player2": "Thành Viên 2 (Chỉ dành cho đánh đôi)",
-        "teamSection": "Thành viên trong đội",
-        "types": {
-          "MEN_SINGLES": "Đơn Nam",
-          "WOMEN_SINGLES": "Đơn Nữ",
-          "MEN_DOUBLES": "Đôi Nam",
-          "WOMEN_DOUBLES": "Đôi Nữ",
-          "MIXED_DOUBLES": "Đôi Nam Nữ"
-        }
-      },
-      "next": "Bước tiếp theo",
-      "back": "Quay lại",
-      "finish": "Kết thúc"
+    "name": "Tên Giải Đấu",
+    "required": "Các trường bắt buộc được đánh dấu bằng *",
+    "formats": {
+      "title": "Thể Thức Thi Đấu",
+      "addFormat": "Thêm Thể Thức",
+      "removeFormat": "Xóa Thể Thức",
+      "type": "Loại Thể Thức",
+      "types": {
+        "MEN_SINGLES": "Đơn Nam",
+        "WOMEN_SINGLES": "Đơn Nữ",
+        "MEN_DOUBLES": "Đôi Nam",
+        "WOMEN_DOUBLES": "Đôi Nữ",
+        "MIXED_DOUBLES": "Đôi Nam Nữ"
+      }
     },
-    "JoinTournament": {
-      "title": "Tham Gia Giải Đấu",
-      "codeLabel": "Mã Giải Đấu",
-      "codePlaceholder": "Nhập mã giải đấu",
-      "nameLabel": "Tên Của Bạn",
-      "namePlaceholder": "Nhập tên của bạn",
-      "joinButton": "Tham Gia",
-      "cancelButton": "Hủy Bỏ"
-    }
+    "steps": {
+      "tournamentInfo": "Thông Tin Giải Đấu",
+      "formats": "Thể Thức",
+      "groupsAndTeams": "Bảng Đấu & Đội"
+    },
+    "groupsAndTeams": {
+      "title": "Thiết lập bảng đấu",
+      "groupName": "Tên Nhóm",
+      "numOfTeams": "Số Đội Tham Gia",
+      "addGroup": "Thêm Nhóm",
+      "removeGroup": "Loại Nhóm",
+      "player1": "Thành Viên 1",
+      "player2": "Thành Viên 2 (Chỉ dành cho đánh đôi)",
+      "teamSection": "Thành viên trong đội",
+      "types": {
+        "MEN_SINGLES": "Đơn Nam",
+        "WOMEN_SINGLES": "Đơn Nữ",
+        "MEN_DOUBLES": "Đôi Nam",
+        "WOMEN_DOUBLES": "Đôi Nữ",
+        "MIXED_DOUBLES": "Đôi Nam Nữ"
+      }
+    },
+    "next": "Bước tiếp theo",
+    "back": "Quay lại",
+    "finish": "Kết thúc"
+  },
+  "JoinTournament": {
+    "title": "Tham Gia Giải Đấu",
+    "codeLabel": "Mã Giải Đấu",
+    "codePlaceholder": "Nhập mã giải đấu",
+    "nameLabel": "Tên Của Bạn",
+    "namePlaceholder": "Nhập tên của bạn",
+    "joinButton": "Tham Gia",
+    "cancelButton": "Hủy Bỏ"
   }
+}

@@ -4,21 +4,12 @@ import { FormatType } from '@/enums/tournament.enum';
 import { useTranslations } from 'next-intl';
 import { useState, useEffect } from 'react';
 import { FormatModel } from '@/data-models/format.model';
-
-interface Team {
-  player1Name: string;
-  player2Name?: string;
-}
-
-interface Group {
-  groupName: string;
-  numOfTeams: number;
-  teams: Team[];
-}
+import { GroupTeamModel } from '@/data-models/group.model';
+import { TeamModel } from '@/data-models/team.model';
 
 interface GroupTeamFormProps {
   format: FormatModel;
-  onUpdate: (groups: Group[]) => void;
+  onUpdate: (groupTeams: GroupTeamModel[]) => void;
 }
 
 const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
@@ -30,7 +21,7 @@ const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
 
 export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) {
   const t = useTranslations('NewTournament.groupsAndTeams');
-  const [groups, setGroups] = useState<Group[]>([]);
+  const [groupTeams, setGroupTeams] = useState<GroupTeamModel[]>([]);
 
   const isDoubles = [
     FormatType.MEN_DOUBLES,
@@ -40,36 +31,52 @@ export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) 
 
   // Initialize or update groups when format changes
   useEffect(() => {
-    const initialGroups = Array(format.numOfGroups).fill(null).map((_, index) => ({
-      groupName: `Group ${String.fromCharCode(65 + index)}`, // A, B, C, etc.
-      numOfTeams: 4,
-      teams: Array(4).fill({ player1Name: '', player2Name: '' })
-    }));
-    setGroups(initialGroups);
-    onUpdate(initialGroups);
-  }, [format.numOfGroups]);
+    if (!format.formatId) return; // Don't initialize if we don't have a formatId
 
-  const handleGroupChange = (index: number, field: keyof Group, value: string | number) => {
-    const newGroups = [...groups];
-    newGroups[index] = {
-      ...newGroups[index],
-      [field]: value,
+    const initialGroupTeams = Array(format.numOfGroups).fill(null).map((_, index) => ({
+      group: {
+        groupName: `Group ${String.fromCharCode(65 + index)}`, // A, B, C, etc.
+        numOfTeams: 4,
+        formatId: format.formatId!
+      },
+      teams: Array(4).fill(null).map(() => ({
+        player1Name: '',
+        player2Name: '',
+        groupId: 0 // This will be set by the backend
+      }))
+    }));
+    setGroupTeams(initialGroupTeams);
+    onUpdate(initialGroupTeams);
+  }, [format.numOfGroups, format.formatId]);
+
+  const handleGroupChange = (index: number, field: keyof GroupTeamModel['group'], value: string | number) => {
+    const newGroupTeams = [...groupTeams];
+    newGroupTeams[index] = {
+      ...newGroupTeams[index],
+      group: {
+        ...newGroupTeams[index].group,
+        [field]: value
+      },
       teams: field === 'numOfTeams' 
-        ? Array(Number(value)).fill({ player1Name: '', player2Name: '' })
-        : newGroups[index].teams
+        ? Array(Number(value)).fill(null).map(() => ({
+            player1Name: '',
+            player2Name: '',
+            groupId: newGroupTeams[index].group.groupId || 0
+          }))
+        : newGroupTeams[index].teams
     };
-    setGroups(newGroups);
-    onUpdate(newGroups);
+    setGroupTeams(newGroupTeams);
+    onUpdate(newGroupTeams);
   };
 
-  const handleTeamChange = (groupIndex: number, teamIndex: number, field: keyof Team, value: string) => {
-    const newGroups = [...groups];
-    newGroups[groupIndex].teams[teamIndex] = {
-      ...newGroups[groupIndex].teams[teamIndex],
+  const handleTeamChange = (groupIndex: number, teamIndex: number, field: keyof TeamModel, value: string) => {
+    const newGroupTeams = [...groupTeams];
+    newGroupTeams[groupIndex].teams[teamIndex] = {
+      ...newGroupTeams[groupIndex].teams[teamIndex],
       [field]: value
     };
-    setGroups(newGroups);
-    onUpdate(newGroups);
+    setGroupTeams(newGroupTeams);
+    onUpdate(newGroupTeams);
   };
 
   return (
@@ -87,10 +94,10 @@ export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) 
          t('types.MIXED_DOUBLES')}
       </h2>
 
-      {groups.map((group, groupIndex) => (
+      {groupTeams.map((groupTeam, groupIndex) => (
         <div key={groupIndex} className="bg-gray-50 p-6 rounded-lg space-y-6">
           <div className="flex justify-between items-center">
-            <h3 className="text-lg font-medium text-gray-900">{group.groupName}</h3>
+            <h3 className="text-lg font-medium text-gray-900">{groupTeam.group.groupName}</h3>
           </div>
 
           <div className="grid grid-cols-2 gap-4">
@@ -98,7 +105,7 @@ export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) 
               <RequiredLabel text={t('groupName')} />
               <input
                 type="text"
-                value={group.groupName}
+                value={groupTeam.group.groupName}
                 onChange={(e) => handleGroupChange(groupIndex, 'groupName', e.target.value)}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                 required
@@ -109,7 +116,7 @@ export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) 
               <input
                 type="number"
                 min="2"
-                value={group.numOfTeams}
+                value={groupTeam.group.numOfTeams}
                 onChange={(e) => handleGroupChange(groupIndex, 'numOfTeams', Number(e.target.value))}
                 className="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-[#39846d] focus:ring-[#39846d] text-gray-900"
                 required
@@ -120,7 +127,7 @@ export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) 
           <div className="mt-4">
             <h4 className="text-md font-medium text-gray-900 mb-3">{t('teamSection')}</h4>
             <div className="space-y-3">
-              {group.teams.map((team, teamIndex) => (
+              {groupTeam.teams.map((team, teamIndex) => (
                 <div key={teamIndex} className="grid grid-cols-2 gap-4">
                   <div>
                     <RequiredLabel text={t('player1')} />

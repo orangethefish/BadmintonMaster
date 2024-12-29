@@ -16,7 +16,7 @@ import StepsBar from '../../components/StepsBar';
 import GroupTeamForm from '../../components/GroupTeamForm';
 import { motion, AnimatePresence } from 'framer-motion';
 import TournamentInfoForm from '../../components/TournamentInfoForm';
-import { GroupModel } from '@/data-models/group.model';
+import { GroupModel, GroupTeamModel } from '@/data-models/group.model';
 import { TeamModel } from '@/data-models/team.model';
 
 
@@ -30,12 +30,11 @@ const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
 export default function NewTournamentPage() {
   const t = useTranslations('NewTournament');
   const router = useRouter();
-  
+  const tournamentService = ServiceFactory.getTournamentService();
   const [currentStep, setCurrentStep] = useState(TournamentCreationStep.TOURNAMENT_INFO);
   const [tournament, setTournament] = useState<TournamentModel>(defaultTournament);
   const [formats, setFormats] = useState<FormatModel[]>([{ ...defaultFormat }]);
-  const [groups, setGroups] = useState<GroupModel[]>([]);
-  const [teams, setTeams] = useState<TeamModel[]>([]);
+  const [groupTeams, setGroupTeams] = useState<GroupTeamModel[]>([]);
 
 
   const handleTournamentChange = (field: string, value: string) => {
@@ -53,8 +52,8 @@ export default function NewTournamentPage() {
     });
   };
 
-  const handleGroupsUpdate = (newGroups: any[]) => {  // Replace 'any' with your group type
-    setGroups(newGroups);
+  const handleGroupTeamsUpdate = (updatedGroupTeams: GroupTeamModel[]) => {
+    setGroupTeams(updatedGroupTeams);
   };
 
   const handleNext = () => {
@@ -82,12 +81,13 @@ export default function NewTournamentPage() {
   };
 
   const isGroupsAndTeamsValid = () => {
-    return groups.every(group => 
-      group.groupName.trim() !== '' &&
-      group.numOfTeams > 0 &&
-      teams.filter(team => team.groupId === group.groupId)
-           .every(team => team.player1Name.trim() !== '' && 
-                  (isDoubleFormat(group.formatId) ? team.player2Name?.trim() !== '' : true))
+    return groupTeams.every(groupTeam => 
+      groupTeam.group.groupName.trim() !== '' &&
+      groupTeam.group.numOfTeams > 0 &&
+      groupTeam.teams.every(team => 
+        team.player1Name.trim() !== '' && 
+        (isDoubleFormat(groupTeam.group.formatId) ? team.player2Name?.trim() !== '' : true)
+      )
     );
   };
 
@@ -109,6 +109,14 @@ export default function NewTournamentPage() {
     handleNext();
   };
 
+  const handleAddFormat = () => {
+    setFormats(prev => [...prev, { ...defaultFormat }]);
+  };
+
+  const handleRemoveFormat = (indexToRemove: number) => {
+    setFormats(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
   const handleSubmitFormats = async (e: React.FormEvent) => {
     e.preventDefault();
     
@@ -118,7 +126,6 @@ export default function NewTournamentPage() {
     }
 
     try {
-      const tournamentService = ServiceFactory.getTournamentService();
       const response = await NotificationService.promise(
         tournamentService.saveTournament({
           tournament,
@@ -137,6 +144,23 @@ export default function NewTournamentPage() {
         }
         if (response.formats) {
           setFormats(response.formats);
+          // Initialize group teams based on the saved formats
+          const initialGroupTeams = response.formats.flatMap(format => 
+            Array(format.numOfGroups).fill(null).map((_, index) => ({
+              group: {
+                groupName: `Group ${String.fromCharCode(65 + index)}`,
+                numOfTeams: 4,
+                formatId: format.formatId!,
+                tournamentId: response.tournament.tournamentId!
+              },
+              teams: Array(4).fill(null).map(() => ({
+                player1Name: '',
+                player2Name: '',
+                groupId: 0
+              }))
+            }))
+          );
+          setGroupTeams(initialGroupTeams);
         }
         handleNext();
       }
@@ -156,12 +180,11 @@ export default function NewTournamentPage() {
     }
 
     try {
-      const tournamentService = ServiceFactory.getTournamentService();
+      // Map groups to include formatId from the corresponding format
+      debugger;
+
       const response = await NotificationService.promise(
-        tournamentService.saveGroup(formats.formatId!, {
-          groups,
-          teams,
-        }),
+        tournamentService.saveGroup(tournament.tournamentId!, groupTeams),
         {
           loading: t('notifications.savingGroups'),
           success: t('notifications.groupsSaved'),
@@ -170,8 +193,7 @@ export default function NewTournamentPage() {
       );
 
       if (response) {
-        setGroups(response.groups);
-        setTeams(response.teams);
+        setGroupTeams(response);
         router.push(`/tournament/${tournament.tournamentId}`);
       }
     } catch (error) {
@@ -204,16 +226,27 @@ export default function NewTournamentPage() {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -300, opacity: 0 }}
           >
-            {/* Formats Section */}
             <div className="space-y-4">
-              <h2 className="text-xl font-semibold flex items-center text-[#39846d]">
-                <span className="mr-2">
-                  <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+              <div className="flex justify-between items-center">
+                <h2 className="text-xl font-semibold flex items-center text-[#39846d]">
+                  <span className="mr-2">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 10h16M4 14h16M4 18h16" />
+                    </svg>
+                  </span>
+                  {t('formats.title')}
+                </h2>
+                <button
+                  type="button"
+                  onClick={handleAddFormat}
+                  className="inline-flex items-center px-4 py-2 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-[#39846d] hover:bg-[#2c6353] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#39846d]"
+                >
+                  <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 mr-2" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                   </svg>
-                </span>
-                {t('formats.title')}
-              </h2>
+                  {t('formats.addFormat')}
+                </button>
+              </div>
 
               <div className="space-y-4">
                 {formats.map((format, index) => (
@@ -221,7 +254,7 @@ export default function NewTournamentPage() {
                     key={index}
                     format={format}
                     onUpdate={(updatedFormat) => handleFormatUpdate(index, updatedFormat)}
-                    onRemove={() => {/* ... */}}
+                    onRemove={() => handleRemoveFormat(index)}
                     showRemoveButton={formats.length > 1}
                   />
                 ))}
@@ -241,7 +274,7 @@ export default function NewTournamentPage() {
               <GroupTeamForm
                 key={index}
                 format={format}
-                onUpdate={(updatedGroups) => handleGroupsUpdate(updatedGroups)}
+                onUpdate={(updatedGroupTeams) => handleGroupTeamsUpdate(updatedGroupTeams)}
               />
             ))}
           </motion.div>

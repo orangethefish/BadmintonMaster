@@ -7,7 +7,8 @@ export interface GroupModel {
     numOfTeams: number;
 }
 
-export interface CreateGroupRequest {
-  groups: GroupModel[];
-  teams: TeamModel[];
+export interface GroupTeamModel{
+  group: GroupModel,
+  teams: TeamModel[]
 }
+

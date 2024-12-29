@@ -14,9 +14,9 @@ interface CreateTournamentRequest {
   formats: FormatModel[];
 }
 
-interface CreateGroupRequest {
-  groups: GroupModel[];
-  teams: TeamModel[];
+interface GroupTeamModel{
+    group: GroupModel,
+    teams: TeamModel[]
 }
 
 export class TournamentController {
@@ -76,25 +76,33 @@ export class TournamentController {
   public async saveGroups(req: Request, res: Response): Promise<void> {
     try {
       const tournamentId = parseInt(req.params.tournamentId);
-      const { groups, teams } = req.body as CreateGroupRequest;
+      const groupTeamModels = req.body;
 
       // Validate tournament exists
       await this.tournamentService.getTournamentById(tournamentId);
 
-      // Create or update groups
-      const createdGroups = await Promise.all(
-        groups.map(group => this.groupService.addOrUpdateGroup(group))
+      // Process each group and its teams sequentially
+      const results = await Promise.all(
+        groupTeamModels.map(async (groupTeam) => {
+          // Create or update group first
+          const createdGroup = await this.groupService.addOrUpdateGroup(groupTeam.group);
+
+          // Bind the new group ID to each team and create/update them
+          const createdTeams = await Promise.all(
+            groupTeam.teams.map(team => {
+              team.groupId = createdGroup.groupId!;
+              return this.teamService.addOrUpdateTeam(team);
+            })
+          );
+
+          return {
+            group: createdGroup,
+            teams: createdTeams
+          };
+        })
       );
 
-      // Create or update teams, associating them with their groups
-      const createdTeams = await Promise.all(
-        teams.map(team => this.teamService.addOrUpdateTeam(team))
-      );
-
-      res.status(201).json({
-        groups: createdGroups,
-        teams: createdTeams
-      } as CreateGroupRequest);
+      res.status(201).json(results);
     } catch (error) {
       console.error('Error in save groups:', error);
       if (error instanceof Error && error.message.includes('not found')) {
