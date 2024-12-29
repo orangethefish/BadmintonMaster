@@ -10,6 +10,7 @@ import { TeamModel } from '@/data-models/team.model';
 interface GroupTeamFormProps {
   format: FormatModel;
   onUpdate: (groupTeams: GroupTeamModel[]) => void;
+  initialGroupTeams?: GroupTeamModel[];
 }
 
 const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
@@ -19,7 +20,7 @@ const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
   </div>
 );
 
-export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) {
+export default function GroupTeamForm({ format, onUpdate, initialGroupTeams }: GroupTeamFormProps) {
   const t = useTranslations('NewTournament.groupsAndTeams');
   const [groupTeams, setGroupTeams] = useState<GroupTeamModel[]>([]);
 
@@ -29,11 +30,16 @@ export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) 
     FormatType.MIXED_DOUBLES
   ].includes(format.formatType);
 
-  // Initialize or update groups when format changes
+  // Initialize or update groups when format or initialGroupTeams changes
   useEffect(() => {
+    if (initialGroupTeams && initialGroupTeams.length > 0) {
+      setGroupTeams(initialGroupTeams);
+      return;
+    }
+
     if (!format.formatId) return; // Don't initialize if we don't have a formatId
 
-    const initialGroupTeams = Array(format.numOfGroups).fill(null).map((_, index) => ({
+    const newGroupTeams = Array(format.numOfGroups).fill(null).map((_, index) => ({
       group: {
         groupName: `Group ${String.fromCharCode(65 + index)}`, // A, B, C, etc.
         numOfTeams: 4,
@@ -45,9 +51,9 @@ export default function GroupTeamForm({ format, onUpdate }: GroupTeamFormProps) 
         groupId: 0 // This will be set by the backend
       }))
     }));
-    setGroupTeams(initialGroupTeams);
-    onUpdate(initialGroupTeams);
-  }, [format.numOfGroups, format.formatId]);
+    setGroupTeams(newGroupTeams);
+    onUpdate(newGroupTeams);
+  }, [format.numOfGroups, format.formatId, initialGroupTeams]);
 
   const handleGroupChange = (index: number, field: keyof GroupTeamModel['group'], value: string | number) => {
     const newGroupTeams = [...groupTeams];

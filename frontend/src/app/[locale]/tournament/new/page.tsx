@@ -35,6 +35,7 @@ export default function NewTournamentPage() {
   const [tournament, setTournament] = useState<TournamentModel>(defaultTournament);
   const [formats, setFormats] = useState<FormatModel[]>([{ ...defaultFormat }]);
   const [groupTeams, setGroupTeams] = useState<GroupTeamModel[]>([]);
+  const [activeFormatIndex, setActiveFormatIndex] = useState(0);
 
 
   const handleTournamentChange = (field: string, value: string) => {
@@ -53,7 +54,14 @@ export default function NewTournamentPage() {
   };
 
   const handleGroupTeamsUpdate = (updatedGroupTeams: GroupTeamModel[]) => {
-    setGroupTeams(updatedGroupTeams);
+    const startIndex = formats.slice(0, activeFormatIndex).reduce((acc, format) => acc + format.numOfGroups, 0);
+    const numGroups = formats[activeFormatIndex].numOfGroups;
+    
+    setGroupTeams(prev => [
+      ...prev.slice(0, startIndex),
+      ...updatedGroupTeams,
+      ...prev.slice(startIndex + numGroups)
+    ]);
   };
 
   const handleNext = () => {
@@ -203,6 +211,46 @@ export default function NewTournamentPage() {
     }
   };
 
+  const renderGroupsAndTeamsTabs = () => {
+    const startIndex = formats.slice(0, activeFormatIndex).reduce((acc, format) => acc + format.numOfGroups, 0);
+    const numGroups = formats[activeFormatIndex].numOfGroups;
+    const currentFormatGroupTeams = groupTeams.slice(startIndex, startIndex + numGroups);
+
+    return (
+      <div className="space-y-4">
+        <div className="border-b border-gray-200">
+          <nav className="-mb-px flex space-x-8" aria-label="Tabs">
+            {formats.map((format, index) => (
+              <button
+                key={index}
+                onClick={() => setActiveFormatIndex(index)}
+                className={`
+                  whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
+                  ${activeFormatIndex === index
+                    ? 'border-[#39846d] text-[#39846d]'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                  }
+                `}
+              >
+                {format.formatType === FormatType.MEN_SINGLES ? t('formats.types.MEN_SINGLES') :
+                 format.formatType === FormatType.WOMEN_SINGLES ? t('formats.types.WOMEN_SINGLES') :
+                 format.formatType === FormatType.MEN_DOUBLES ? t('formats.types.MEN_DOUBLES') :
+                 format.formatType === FormatType.WOMEN_DOUBLES ? t('formats.types.WOMEN_DOUBLES') :
+                 t('formats.types.MIXED_DOUBLES')}
+              </button>
+            ))}
+          </nav>
+        </div>
+
+        <GroupTeamForm
+          format={formats[activeFormatIndex]}
+          onUpdate={handleGroupTeamsUpdate}
+          initialGroupTeams={currentFormatGroupTeams}
+        />
+      </div>
+    );
+  };
+
   const renderStepContent = () => {
     switch (currentStep) {
       case TournamentCreationStep.TOURNAMENT_INFO:
@@ -270,13 +318,7 @@ export default function NewTournamentPage() {
             animate={{ x: 0, opacity: 1 }}
             exit={{ x: -300, opacity: 0 }}
           >
-            {formats.map((format, index) => (
-              <GroupTeamForm
-                key={index}
-                format={format}
-                onUpdate={(updatedGroupTeams) => handleGroupTeamsUpdate(updatedGroupTeams)}
-              />
-            ))}
+            {renderGroupsAndTeamsTabs()}
           </motion.div>
         );
     }
