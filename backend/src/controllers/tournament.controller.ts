@@ -1,7 +1,7 @@
 import { Request, Response, Router } from 'express';
-import { TournamentModel } from '../data-models/tournament.model';
+import { TournamentModel, TournamentInfoModel } from '../data-models/tournament.model';
 import { FormatModel } from '../data-models/format.model';
-import { GroupModel } from '../data-models/group.model';
+import { GroupModel, GroupTeamModel } from '../data-models/group.model';
 import { TeamModel } from '../data-models/team.model';
 import { TournamentService } from '../services/tournament.service';
 import { FormatService } from '../services/format.service';
@@ -12,11 +12,6 @@ import { handleDates } from '../middleware/dateHandler.middleware';
 interface CreateTournamentRequest {
   tournament: TournamentModel;
   formats: FormatModel[];
-}
-
-interface GroupTeamModel{
-    group: GroupModel,
-    teams: TeamModel[]
 }
 
 export class TournamentController {
@@ -41,6 +36,57 @@ export class TournamentController {
     
     // Create/Update groups and teams
     this.router.post('/:tournamentId/groups', handleDates, this.saveGroups.bind(this));
+
+    // Get tournament info
+    this.router.get('/:tournamentId', this.getTournamentInfo.bind(this));
+  }
+
+  public async getTournamentInfo(req: Request, res: Response): Promise<void> {
+    try {
+      const tournamentId = parseInt(req.params.tournamentId);
+
+      // Get tournament details
+      const tournament = await this.tournamentService.getTournamentById(tournamentId);
+
+      // Get formats for this tournament
+      const formats = await this.formatService.getFormatsByTournamentId(tournamentId);
+
+      // Get groups and teams for each format
+      const groupTeamsPromises = formats.map(async format => {
+        const groups = await this.groupService.getGroupsByFormatId(format.formatId!);
+        
+        // Get teams for each group
+        const groupTeams = await Promise.all(
+          groups.map(async group => {
+            const teams = await this.teamService.getTeamsByGroupId(group.groupId!);
+            return {
+              group,
+              teams
+            } as GroupTeamModel;
+          })
+        );
+
+        return groupTeams;
+      });
+
+      // Flatten the array of group-teams arrays
+      const groupTeams = (await Promise.all(groupTeamsPromises)).flat();
+
+      const tournamentInfo: TournamentInfoModel = {
+        tournament,
+        formats,
+        groupTeams
+      };
+
+      res.status(200).json(tournamentInfo);
+    } catch (error) {
+      console.error('Error getting tournament info:', error);
+      if (error instanceof Error && error.message.includes('not found')) {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    }
   }
 
   public async add(req: Request, res: Response): Promise<void> {
@@ -76,7 +122,7 @@ export class TournamentController {
   public async saveGroups(req: Request, res: Response): Promise<void> {
     try {
       const tournamentId = parseInt(req.params.tournamentId);
-      const groupTeamModels = req.body;
+      const groupTeamModels = req.body as GroupTeamModel[];
 
       // Validate tournament exists
       await this.tournamentService.getTournamentById(tournamentId);

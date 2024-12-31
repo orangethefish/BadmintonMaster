@@ -1,4 +1,5 @@
 import { FormatModel } from "./format.model";
+import { GroupTeamModel } from "./group.model";
 
 export interface TournamentModel {
   tournamentId?: number;
@@ -11,6 +12,12 @@ export interface TournamentModel {
   startDate: string;
   endDate: string;
   invitationCode?: number;
+}
+
+export interface TournamentInfoModel {
+  tournament: TournamentModel;
+  formats: FormatModel[];
+  groupTeams: GroupTeamModel[];
 }
 
 export const defaultTournament: TournamentModel = {
