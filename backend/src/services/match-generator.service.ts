@@ -2,6 +2,7 @@ import { GroupTeamModel } from '../data-models/group.model';
 import { TeamModel } from '../data-models/team.model';
 import { MatchModel } from '../data-models/match.model';
 import { MatchService } from './match.service';
+import { MatchStatus } from '../enums/match.enum';
 
 interface TeamMatchCount {
   teamId: number;
@@ -44,30 +45,48 @@ export class MatchGeneratorService {
     });
 
     // Calculate total number of matches needed
-    // Each team needs to play against every other team once
     const totalMatchesNeeded = (teams.length * (teams.length - 1)) / 2;
 
     while (matches.length < totalMatchesNeeded) {
-      const availablePairs = this.findAvailablePairs(teams, teamStats);
+      // First, try to find pairs where both teams haven't played yet
+      let availablePairs = this.findAvailablePairs(teams, teamStats, true);
+      
+      // If no pairs where both teams haven't played, find any valid pairs
       if (availablePairs.length === 0) {
-        // If no valid pairs found, reset consecutive matches count
-        // This helps when we're stuck due to consecutive match constraint
-        for (const stats of teamStats.values()) {
-          stats.consecutiveMatches = 0;
+        availablePairs = this.findAvailablePairs(teams, teamStats, false);
+        
+        if (availablePairs.length === 0) {
+          // If still no valid pairs found, reset consecutive matches count
+          for (const stats of teamStats.values()) {
+            stats.consecutiveMatches = 0;
+          }
+          continue;
         }
-        continue;
       }
 
-      // Pick a random pair from available pairs
-      const randomIndex = Math.floor(Math.random() * availablePairs.length);
-      const [team1, team2] = availablePairs[randomIndex];
+      // Sort pairs to prioritize teams with fewer matches
+      availablePairs.sort((a, b) => {
+        const aMaxMatches = Math.max(
+          teamStats.get(a[0].teamId!)!.totalMatches,
+          teamStats.get(a[1].teamId!)!.totalMatches
+        );
+        const bMaxMatches = Math.max(
+          teamStats.get(b[0].teamId!)!.totalMatches,
+          teamStats.get(b[1].teamId!)!.totalMatches
+        );
+        return aMaxMatches - bMaxMatches;
+      });
+
+      // Pick the first pair (teams with fewest matches)
+      const [team1, team2] = availablePairs[0];
 
       // Create match
       const match: MatchModel = {
         formatId: group.formatId,
         groupId: group.groupId!,
         team1Id: team1.teamId!,
-        team2Id: team2.teamId!
+        team2Id: team2.teamId!,
+        result: MatchStatus.PENDING
       };
 
       matches.push(match);
@@ -86,11 +105,14 @@ export class MatchGeneratorService {
       });
     }
 
-    // Shuffle matches to make them more random
-    return this.shuffleArray(matches);
+    return matches;
   }
 
-  private findAvailablePairs(teams: TeamModel[], teamStats: Map<number, TeamMatchCount>): [TeamModel, TeamModel][] {
+  private findAvailablePairs(
+    teams: TeamModel[], 
+    teamStats: Map<number, TeamMatchCount>,
+    onlyUnplayedTeams: boolean
+  ): [TeamModel, TeamModel][] {
     const availablePairs: [TeamModel, TeamModel][] = [];
 
     for (let i = 0; i < teams.length; i++) {
@@ -100,7 +122,7 @@ export class MatchGeneratorService {
         const team1Stats = teamStats.get(team1.teamId!);
         const team2Stats = teamStats.get(team2.teamId!);
 
-        if (this.canTeamsPlay(team1Stats!, team2Stats!)) {
+        if (this.canTeamsPlay(team1Stats!, team2Stats!, onlyUnplayedTeams)) {
           availablePairs.push([team1, team2]);
         }
       }
@@ -109,7 +131,11 @@ export class MatchGeneratorService {
     return availablePairs;
   }
 
-  private canTeamsPlay(team1Stats: TeamMatchCount, team2Stats: TeamMatchCount): boolean {
+  private canTeamsPlay(
+    team1Stats: TeamMatchCount, 
+    team2Stats: TeamMatchCount,
+    onlyUnplayedTeams: boolean
+  ): boolean {
     // Check if teams haven't played against each other
     if (team1Stats.opponents.has(team2Stats.teamId)) {
       return false;
@@ -117,6 +143,11 @@ export class MatchGeneratorService {
 
     // Check consecutive matches constraint
     if (team1Stats.consecutiveMatches >= 2 || team2Stats.consecutiveMatches >= 2) {
+      return false;
+    }
+
+    // If we're looking for only unplayed teams, check if either team has played
+    if (onlyUnplayedTeams && (team1Stats.totalMatches > 0 || team2Stats.totalMatches > 0)) {
       return false;
     }
 
@@ -138,14 +169,5 @@ export class MatchGeneratorService {
     // Update total matches
     team1Stats.totalMatches++;
     team2Stats.totalMatches++;
-  }
-
-  private shuffleArray<T>(array: T[]): T[] {
-    const shuffled = [...array];
-    for (let i = shuffled.length - 1; i > 0; i--) {
-      const j = Math.floor(Math.random() * (i + 1));
-      [shuffled[i], shuffled[j]] = [shuffled[j], shuffled[i]];
-    }
-    return shuffled;
   }
 } 

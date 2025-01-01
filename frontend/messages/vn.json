@@ -1,5 +1,20 @@
 {
   "Index": {
+    "features": {
+      "title": "Tính Năng",
+      "management": {
+        "title": "Quản Lý Giải Đấu",
+        "description": "Dễ dàng quản lý bảng đấu, trận đấu và lịch thi đấu"
+      },
+      "updates": {
+        "title": "Cập Nhật Thời Gian Thực",
+        "description": "Cập nhật liên tục tỷ số và bảng xếp hạng"
+      },
+      "scheduling": {
+        "title": "Lịch Trình Linh Hoạt",
+        "description": "Tùy chỉnh thời gian và thời lượng trận đấu"
+      }
+    },
     "title": "Tournament Hub",
     "subtitle": "Tạo hoặc tham gia giải đấu để bắt đầu",
     "createButton": "Tạo giải đấu mới",

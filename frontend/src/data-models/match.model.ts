@@ -7,7 +7,7 @@ export interface MatchModel {
   team2Score?: number;
   team1Id: number;
   team2Id: number;
-  status: MatchStatus;
+  result: MatchStatus;
   startTime?: string;
   endTime?: string;
 }

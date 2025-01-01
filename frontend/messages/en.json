@@ -1,5 +1,20 @@
 {
   "Index": {
+    "features": {
+      "title": "Features",
+      "management": {
+        "title": "Tournament Management",
+        "description": "Easily manage groups, matches, and schedules"
+      },
+      "updates": {
+        "title": "Real-time Updates",
+        "description": "Stay updated with live scores and standings"
+      },
+      "scheduling": {
+        "title": "Flexible Scheduling",
+        "description": "Set custom match times and durations"
+      }
+    },
     "title": "Tournament Hub",
     "subtitle": "Create or join a tournament to get started",
     "createButton": "Create New Tournament",
@@ -34,7 +49,9 @@
       "updated": "Tournament updated successfully!",
       "error": "Failed to save tournament",
       "saving": "Saving tournament...",
-      "saved": "Tournament saved successfully!"
+      "saved": "Tournament saved successfully!",
+      "savingGroups": "Saving groups...",
+      "groupsSaved": "Groups saved successfully!"
     },
     "name": "Tournament Name",
     "required": "Required fields are marked with *",

@@ -113,11 +113,11 @@ export default function TournamentMatchesPage() {
                               </div>
                             </div>
                             <div className="px-4 flex items-center space-x-4">
-                              <span className={`text-2xl font-bold ${match.status >= MatchStatus.TEAM1_WINS ? 'text-gray-900' : 'text-gray-400'}`}>
+                              <span className={`text-2xl font-bold ${match.result >= MatchStatus.TEAM1_WINS ? 'text-gray-900' : 'text-gray-400'}`}>
                                 {match.team1Score ?? '-'}
                               </span>
                               <span className="text-gray-400">vs</span>
-                              <span className={`text-2xl font-bold ${match.status >= MatchStatus.TEAM1_WINS ? 'text-gray-900' : 'text-gray-400'}`}>
+                              <span className={`text-2xl font-bold ${match.result >= MatchStatus.TEAM1_WINS ? 'text-gray-900' : 'text-gray-400'}`}>
                                 {match.team2Score ?? '-'}
                               </span>
                             </div>
@@ -136,15 +136,15 @@ export default function TournamentMatchesPage() {
                           <div className="mt-2">
                             <span className={`
                               inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium
-                              ${match.status === MatchStatus.PENDING ? 'bg-gray-100 text-gray-800' :
-                                match.status === MatchStatus.IN_PROGRESS ? 'bg-blue-100 text-blue-800' :
-                                match.status >= MatchStatus.TEAM1_WINS ? 'bg-green-100 text-green-800' :
+                              ${match.result === MatchStatus.PENDING ? 'bg-gray-100 text-gray-800' :
+                                match.result === MatchStatus.IN_PROGRESS ? 'bg-blue-100 text-blue-800' :
+                                match.result >= MatchStatus.TEAM1_WINS ? 'bg-green-100 text-green-800' :
                                 'bg-red-100 text-red-800'
                               }
                             `}>
-                              {match.status === MatchStatus.PENDING ? t('matchStatus.pending') :
-                               match.status === MatchStatus.IN_PROGRESS ? t('matchStatus.inProgress') :
-                               match.status >= MatchStatus.TEAM1_WINS ? t('matchStatus.completed') :
+                              {match.result === MatchStatus.PENDING ? t('matchStatus.pending') :
+                               match.result === MatchStatus.IN_PROGRESS ? t('matchStatus.inProgress') :
+                               match.result >= MatchStatus.TEAM1_WINS ? t('matchStatus.completed') :
                                t('matchStatus.cancelled')}
                             </span>
                           </div>

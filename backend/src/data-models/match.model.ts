@@ -1,4 +1,4 @@
-import { MatchResult } from '../enums/match.enum';
+import { MatchStatus } from '../enums/match.enum';
 import { FormatModel } from './format.model';
 import { GroupTeamModel } from './group.model';
 
@@ -14,7 +14,7 @@ export interface MatchModel {
   umpireId?: string;
   courtNum?: string;
   winnerId?: number;
-  result?: MatchResult;
+  result?: MatchStatus;
   extendData?: string;
 }
 
