@@ -117,9 +117,14 @@ export class TeamService {
           TeamId as teamId,
           GroupId as groupId,
           Player1Name as player1Name,
-          Player2Name as player2Name
+          Player2Name as player2Name,
+          Deleted as deleted,
+          DateCreated as dateCreated,
+          DateModified as dateModified,
+          DateDeleted as dateDeleted
         FROM Team 
-        WHERE GroupId = ?`;
+        WHERE GroupId = ? AND (Deleted = false OR Deleted IS NULL)
+        ORDER BY DateCreated`;
       
       db.all(sql, [groupId], (err: Error | null, rows: any[]) => {
         if (err) {

@@ -16,6 +16,10 @@ export interface MatchModel {
   winnerId?: number;
   result?: MatchStatus;
   extendData?: string;
+  deleted?: boolean;
+  dateCreated?: string;
+  dateModified?: string;
+  dateDeleted?: string | null;
 }
 
 export interface GroupMatchModel {

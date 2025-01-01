@@ -3,4 +3,8 @@ export interface TeamModel {
   groupId: number;
   player1Name: string;
   player2Name?: string;
+  deleted?: boolean;
+  dateCreated?: string;
+  dateModified?: string;
+  dateDeleted?: string | null;
 } 
