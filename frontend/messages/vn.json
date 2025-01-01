@@ -80,6 +80,49 @@
     "back": "Quay lại",
     "finish": "Kết thúc"
   },
+  "Tournament": {
+    "title": "Chi Tiết Giải Đấu",
+    "sections": {
+      "basicInfo": "Thông Tin Cơ Bản",
+      "formats": "Thể Thức Thi Đấu",
+      "groupsAndTeams": "Bảng Đấu & Đội",
+      "matches": "Trận Đấu"
+    },
+    "fields": {
+      "description": "Mô Tả",
+      "dates": "Thời Gian Thi Đấu",
+      "numOfGroups": "Số Lượng Bảng",
+      "groupScore": "Điểm Vòng Bảng",
+      "playOffScore": "Điểm Vòng Playoff"
+    },
+    "formats": {
+      "MEN_SINGLES": "Đơn Nam",
+      "WOMEN_SINGLES": "Đơn Nữ",
+      "MEN_DOUBLES": "Đôi Nam",
+      "WOMEN_DOUBLES": "Đôi Nữ",
+      "MIXED_DOUBLES": "Đôi Nam Nữ"
+    },
+    "notifications": {
+      "tournamentCreated": "Tạo giải đấu thành công!",
+      "clickToCopy": "Nhấn vào đây để sao chép mã mời",
+      "codeCopied": "Đã sao chép mã mời vào bộ nhớ tạm!",
+      "savingGroups": "Đang lưu...",
+      "groupsSaved": "Lưu thành công!"
+    },
+    "errors": {
+      "fetchFailed": "Không thể tải thông tin giải đấu",
+      "notFound": "Không tìm thấy giải đấu",
+      "noMatches": "Không có trận đấu nào"
+    },
+    "matchStatus": {
+      "pending": "Chưa Bắt Đầu",
+      "inProgress": "Đang Diễn Ra",
+      "completed": "Đã Kết Thúc",
+      "cancelled": "Đã Hủy"
+    },
+    "viewMatches": "Xem Trận Đấu",
+    "backToOverview": "Quay Lại Tổng Quan"
+  },
   "JoinTournament": {
     "title": "Tham Gia Giải Đấu",
     "codeLabel": "Mã Giải Đấu",

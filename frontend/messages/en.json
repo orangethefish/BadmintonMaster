@@ -77,6 +77,49 @@
     "back": "Back",
     "finish": "Finish"
   },
+  "Tournament": {
+    "title": "Tournament Details",
+    "sections": {
+      "basicInfo": "Basic Information",
+      "formats": "Tournament Formats",
+      "groupsAndTeams": "Groups & Teams",
+      "matches": "Tournament Matches"
+    },
+    "fields": {
+      "description": "Description",
+      "dates": "Tournament Dates",
+      "numOfGroups": "Number of Groups",
+      "groupScore": "Group Stage Score",
+      "playOffScore": "Playoff Score"
+    },
+    "formats": {
+      "MEN_SINGLES": "Men's Singles",
+      "WOMEN_SINGLES": "Women's Singles",
+      "MEN_DOUBLES": "Men's Doubles",
+      "WOMEN_DOUBLES": "Women's Doubles",
+      "MIXED_DOUBLES": "Mixed Doubles"
+    },
+    "notifications": {
+      "tournamentCreated": "Tournament created successfully!",
+      "clickToCopy": "Click here to copy invitation code",
+      "codeCopied": "Invitation code copied to clipboard!",
+      "savingGroups": "Saving groups...",
+      "groupsSaved": "Groups saved successfully!"
+    },
+    "errors": {
+      "fetchFailed": "Failed to fetch tournament details",
+      "notFound": "Tournament not found",
+      "noMatches": "No matches found"
+    },
+    "matchStatus": {
+      "pending": "Pending",
+      "inProgress": "In Progress",
+      "completed": "Completed",
+      "cancelled": "Cancelled"
+    },
+    "viewMatches": "View Matches",
+    "backToOverview": "Back to Overview"
+  },
   "JoinTournament": {
     "title": "Join Tournament",
     "codeLabel": "Tournament Code",

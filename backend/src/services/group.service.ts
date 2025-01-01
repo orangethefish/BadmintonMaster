@@ -137,7 +137,8 @@ export class GroupService {
           GroupName as groupName,
           NumOfTeams as numOfTeams
         FROM "Group" 
-        WHERE FormatId = ?`;
+        WHERE FormatId = ?
+        ORDER BY groupName`;
       
       db.all(sql, [formatId], (err: Error | null, rows: any[]) => {
         if (err) {

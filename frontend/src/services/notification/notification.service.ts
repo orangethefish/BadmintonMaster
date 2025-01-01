@@ -1,4 +1,5 @@
-import toast, { Toast, ToastOptions } from 'react-hot-toast';
+import toast, { Toast, ToastOptions, ToastType } from 'react-hot-toast';
+import { ReactNode } from 'react';
 
 export class NotificationService {
   private static defaultOptions: ToastOptions = {
@@ -6,7 +7,7 @@ export class NotificationService {
     position: 'top-right',
   };
 
-  static success(message: string, options?: ToastOptions): Toast {
+  static success(message: string, options?: ToastOptions): string {
     return toast.success(message, {
       ...this.defaultOptions,
       ...options,
@@ -18,7 +19,7 @@ export class NotificationService {
     });
   }
 
-  static error(message: string, options?: ToastOptions): Toast {
+  static error(message: string, options?: ToastOptions): string {
     return toast.error(message, {
       ...this.defaultOptions,
       ...options,
@@ -26,7 +27,7 @@ export class NotificationService {
     });
   }
 
-  static info(message: string, options?: ToastOptions): Toast {
+  static info(message: string, options?: ToastOptions): string {
     return toast(message, {
       ...this.defaultOptions,
       ...options,
@@ -34,7 +35,7 @@ export class NotificationService {
     });
   }
 
-  static warning(message: string, options?: ToastOptions): Toast {
+  static warning(message: string, options?: ToastOptions): string {
     return toast(message, {
       ...this.defaultOptions,
       ...options,
@@ -43,7 +44,7 @@ export class NotificationService {
     });
   }
 
-  static loading(message: string, options?: ToastOptions): Toast {
+  static loading(message: string, options?: ToastOptions): string {
     return toast.loading(message, {
       ...this.defaultOptions,
       ...options,
@@ -51,7 +52,14 @@ export class NotificationService {
     });
   }
 
-  static dismiss(toastId?: string | number): void {
+  static custom(message: ReactNode, options?: ToastOptions): string {
+    return toast.custom(message, {
+      ...this.defaultOptions,
+      ...options,
+    });
+  }
+
+  static dismiss(toastId?: string): void {
     if (toastId) {
       toast.dismiss(toastId);
     } else {

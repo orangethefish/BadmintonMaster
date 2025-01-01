@@ -18,6 +18,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import TournamentInfoForm from '../../components/TournamentInfoForm';
 import { GroupModel, GroupTeamModel } from '@/data-models/group.model';
 import { TeamModel } from '@/data-models/team.model';
+import toast from 'react-hot-toast';
 
 
 const RequiredLabel: React.FC<{ text: string }> = ({ text }) => (
@@ -188,9 +189,6 @@ export default function NewTournamentPage() {
     }
 
     try {
-      // Map groups to include formatId from the corresponding format
-      debugger;
-
       const response = await NotificationService.promise(
         tournamentService.saveGroup(tournament.tournamentId!, groupTeams),
         {
@@ -202,7 +200,11 @@ export default function NewTournamentPage() {
 
       if (response) {
         setGroupTeams(response);
-        router.push(`/tournament/${tournament.tournamentId}`);
+        // Redirect to tournament detail page with invitation code
+        if (tournament.tournamentId) {
+          const url = `/tournament/${tournament.tournamentId}/overview/${tournament.invitationCode ? `?invitationCode=${tournament.invitationCode}` : ''}`;
+          router.push(url);
+        }
       }
     } catch (error) {
       if (!ErrorService.isHttpError(error)) {
@@ -223,6 +225,7 @@ export default function NewTournamentPage() {
             {formats.map((format, index) => (
               <button
                 key={index}
+                type="button"
                 onClick={() => setActiveFormatIndex(index)}
                 className={`
                   whitespace-nowrap py-4 px-1 border-b-2 font-medium text-sm
