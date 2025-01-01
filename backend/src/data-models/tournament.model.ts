@@ -15,8 +15,12 @@ export interface TournamentModel {
   invitationCode?: number;
 }
 
+export interface FormatInfoModel{
+  format: FormatModel,
+  groupsAndTeams: GroupTeamModel[],
+}
+
 export interface TournamentInfoModel{
     tournament: TournamentModel,
-    formats: FormatModel[],
-    groupTeams: GroupTeamModel[]
+    formats: FormatInfoModel[]
 }

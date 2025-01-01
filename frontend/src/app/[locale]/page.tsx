@@ -85,7 +85,7 @@ export default function HomePage() {
 
         {/* Features Section */}
         <div className="mt-20 text-center">
-          <h2 className="text-3xl font-bold text-gray-900 mb-12">Features</h2>
+          <h2 className="text-3xl font-bold text-gray-900 mb-12">{t('features.title')}</h2>
           <div className="grid md:grid-cols-3 gap-8">
             <div className="p-6">
               <div className="bg-[#39846d] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -93,8 +93,8 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Tournament Management</h3>
-              <p className="text-gray-600">Easily manage groups, matches, and schedules</p>
+              <h3 className="text-xl font-semibold mb-2">{t('features.management.title')}</h3>
+              <p className="text-gray-600">{t('features.management.description')}</p>
             </div>
             <div className="p-6">
               <div className="bg-[#39846d] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -103,8 +103,8 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Real-time Updates</h3>
-              <p className="text-gray-600">Stay updated with live scores and standings</p>
+              <h3 className="text-xl font-semibold mb-2">{t('features.updates.title')}</h3>
+              <p className="text-gray-600">{t('features.updates.description')}</p>
             </div>
             <div className="p-6">
               <div className="bg-[#39846d] w-12 h-12 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -112,8 +112,8 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">Flexible Scheduling</h3>
-              <p className="text-gray-600">Set custom match times and durations</p>
+              <h3 className="text-xl font-semibold mb-2">{t('features.scheduling.title')}</h3>
+              <p className="text-gray-600">{t('features.scheduling.description')}</p>
             </div>
           </div>
         </div>

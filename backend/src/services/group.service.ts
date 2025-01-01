@@ -135,10 +135,14 @@ export class GroupService {
           GroupId as groupId,
           FormatId as formatId,
           GroupName as groupName,
-          NumOfTeams as numOfTeams
+          NumOfTeams as numOfTeams,
+          Deleted as deleted,
+          DateCreated as dateCreated,
+          DateModified as dateModified,
+          DateDeleted as dateDeleted
         FROM "Group" 
-        WHERE FormatId = ?
-        ORDER BY groupName`;
+        WHERE FormatId = ? AND (Deleted = false OR Deleted IS NULL)
+        ORDER BY DateCreated`;
       
       db.all(sql, [formatId], (err: Error | null, rows: any[]) => {
         if (err) {

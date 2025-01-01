@@ -32,11 +32,11 @@ export const db = new sqlite3.Database(dbPath, (err) => {
       Name VARCHAR(255) NOT NULL,
       Description VARCHAR(1000),
       Deleted BOOLEAN DEFAULT false,
-      DateCreated TEXT,
-      DateModified TEXT,
-      DateDeleted TEXT,
-      StartDate TEXT,
-      EndDate TEXT,
+      DateCreated DATETIME,
+      DateModified DATETIME,
+      DateDeleted DATETIME,
+      StartDate DATETIME,
+      EndDate DATETIME,
       InvitationCode BIGINT
     )`);
 
@@ -56,9 +56,9 @@ export const db = new sqlite3.Database(dbPath, (err) => {
       PlayOffWinningCondition INT,
       PlayOffFormat INT,
       Deleted BOOLEAN DEFAULT false,
-      DateCreated TEXT,
-      DateModified TEXT,
-      DateDeleted TEXT,
+      DateCreated DATETIME,
+      DateModified DATETIME,
+      DateDeleted DATETIME,
       FormatType INT,
       FOREIGN KEY (TournamentId) REFERENCES Tournament(TournamentId)
     )`);
@@ -69,6 +69,10 @@ export const db = new sqlite3.Database(dbPath, (err) => {
       FormatId INTEGER NOT NULL,
       GroupName VARCHAR(255),
       NumOfTeams INT,
+      Deleted BOOLEAN DEFAULT false,
+      DateCreated DATETIME,
+      DateModified DATETIME,
+      DateDeleted DATETIME,
       FOREIGN KEY (FormatId) REFERENCES Format(FormatId)
     )`);
 
@@ -78,6 +82,10 @@ export const db = new sqlite3.Database(dbPath, (err) => {
       GroupId INTEGER NOT NULL,
       Player1Name VARCHAR(255) NOT NULL,
       Player2Name VARCHAR(255),
+      Deleted BOOLEAN DEFAULT false,
+      DateCreated DATETIME,
+      DateModified DATETIME,
+      DateDeleted DATETIME,
       FOREIGN KEY (GroupId) REFERENCES "Group"(GroupId)
     )`);
 
@@ -96,33 +104,49 @@ export const db = new sqlite3.Database(dbPath, (err) => {
       WinnerId INTEGER,
       Result INTEGER,
       ExtendData VARCHAR(2000),
+      Deleted BOOLEAN DEFAULT false,
+      DateCreated DATETIME,
+      DateModified DATETIME,
+      DateDeleted DATETIME,
       FOREIGN KEY (FormatId) REFERENCES Format(FormatId),
       FOREIGN KEY (GroupId) REFERENCES "Group"(GroupId),
       FOREIGN KEY (Team1Id) REFERENCES Team(TeamId),
       FOREIGN KEY (Team2Id) REFERENCES Team(TeamId)
     )`);
 
-    // Update existing date columns to TEXT format
-    const updateDateCommands = [
-      // Tournament dates
-      "UPDATE Tournament SET DateCreated = datetime(DateCreated) WHERE DateCreated IS NOT NULL AND typeof(DateCreated) != 'text'",
-      "UPDATE Tournament SET DateModified = datetime(DateModified) WHERE DateModified IS NOT NULL AND typeof(DateModified) != 'text'",
-      "UPDATE Tournament SET DateDeleted = datetime(DateDeleted) WHERE DateDeleted IS NOT NULL AND typeof(DateDeleted) != 'text'",
-      "UPDATE Tournament SET StartDate = datetime(StartDate) WHERE StartDate IS NOT NULL AND typeof(StartDate) != 'text'",
-      "UPDATE Tournament SET EndDate = datetime(EndDate) WHERE EndDate IS NOT NULL AND typeof(EndDate) != 'text'",
-      // Format dates
-      "UPDATE Format SET DateCreated = datetime(DateCreated) WHERE DateCreated IS NOT NULL AND typeof(DateCreated) != 'text'",
-      "UPDATE Format SET DateModified = datetime(DateModified) WHERE DateModified IS NOT NULL AND typeof(DateModified) != 'text'",
-      "UPDATE Format SET DateDeleted = datetime(DateDeleted) WHERE DateDeleted IS NOT NULL AND typeof(DateDeleted) != 'text'"
-    ];
+    // Update existing date columns to DATETIME format
+    // const updateDateCommands = [
+    //   // Tournament dates
+    //   "UPDATE Tournament SET DateCreated = datetime(DateCreated) WHERE DateCreated IS NOT NULL",
+    //   "UPDATE Tournament SET DateModified = datetime(DateModified) WHERE DateModified IS NOT NULL",
+    //   "UPDATE Tournament SET DateDeleted = datetime(DateDeleted) WHERE DateDeleted IS NOT NULL",
+    //   "UPDATE Tournament SET StartDate = datetime(StartDate) WHERE StartDate IS NOT NULL",
+    //   "UPDATE Tournament SET EndDate = datetime(EndDate) WHERE EndDate IS NOT NULL",
+    //   // Format dates
+    //   "UPDATE Format SET DateCreated = datetime(DateCreated) WHERE DateCreated IS NOT NULL",
+    //   "UPDATE Format SET DateModified = datetime(DateModified) WHERE DateModified IS NOT NULL",
+    //   "UPDATE Format SET DateDeleted = datetime(DateDeleted) WHERE DateDeleted IS NOT NULL",
+    //   // Group dates
+    //   "UPDATE \"Group\" SET DateCreated = datetime(DateCreated) WHERE DateCreated IS NOT NULL",
+    //   "UPDATE \"Group\" SET DateModified = datetime(DateModified) WHERE DateModified IS NOT NULL",
+    //   "UPDATE \"Group\" SET DateDeleted = datetime(DateDeleted) WHERE DateDeleted IS NOT NULL",
+    //   // Team dates
+    //   "UPDATE Team SET DateCreated = datetime(DateCreated) WHERE DateCreated IS NOT NULL",
+    //   "UPDATE Team SET DateModified = datetime(DateModified) WHERE DateModified IS NOT NULL",
+    //   "UPDATE Team SET DateDeleted = datetime(DateDeleted) WHERE DateDeleted IS NOT NULL",
+    //   // Match dates
+    //   "UPDATE Match SET DateCreated = datetime(DateCreated) WHERE DateCreated IS NOT NULL",
+    //   "UPDATE Match SET DateModified = datetime(DateModified) WHERE DateModified IS NOT NULL",
+    //   "UPDATE Match SET DateDeleted = datetime(DateDeleted) WHERE DateDeleted IS NOT NULL"
+    // ];
 
-    updateDateCommands.forEach(command => {
-      db.run(command, [], (err) => {
-        if (err) {
-          console.error(`Error executing ${command}:`, err);
-        }
-      });
-    });
+    // updateDateCommands.forEach(command => {
+    //   db.run(command, [], (err) => {
+    //     if (err) {
+    //       console.error(`Error executing ${command}:`, err);
+    //     }
+    //   });
+    // });
   }
 });
 

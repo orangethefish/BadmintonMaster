@@ -47,7 +47,7 @@ export default function TournamentOverviewPage() {
               <button
                 onClick={() => {
                   navigator.clipboard.writeText(invitationCode);
-                  NotificationService.success(t('notifications.codeCopied'));
+                  toast.success(t('notifications.codeCopied'));
                 }}
                 className="ml-2 p-2 hover:bg-white/20 rounded transition-colors duration-200"
               >
@@ -56,11 +56,10 @@ export default function TournamentOverviewPage() {
                 </svg>
               </button>
             </div>
-            <span className="mt-2 text-sm text-white/80">{t('notifications.clickToCopy')}</span>
           </div>
         </div>,
         {
-          duration: 10000,
+          duration: 5000,
           position: 'top-right',
         }
       );
