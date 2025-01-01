@@ -1,4 +1,6 @@
 import { MatchResult } from '../enums/match.enum';
+import { FormatModel } from './format.model';
+import { GroupTeamModel } from './group.model';
 
 export interface MatchModel {
   matchId?: string;
@@ -14,4 +16,14 @@ export interface MatchModel {
   winnerId?: number;
   result?: MatchResult;
   extendData?: string;
-} 
+}
+
+export interface GroupMatchModel {
+  groupAndTeam: GroupTeamModel;
+  matches: MatchModel[];
+}
+
+export interface FormatMatchModel {
+  format: FormatModel;
+  groupMatches: GroupMatchModel[];
+}
