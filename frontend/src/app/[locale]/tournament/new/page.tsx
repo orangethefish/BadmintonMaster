@@ -202,7 +202,7 @@ export default function NewTournamentPage() {
         setGroupTeams(response);
         // Redirect to tournament detail page with invitation code
         if (tournament.tournamentId) {
-          const url = `/tournament/${tournament.tournamentId}${tournament.invitationCode ? `?invitationCode=${tournament.invitationCode}` : ''}`;
+          const url = `/tournament/${tournament.tournamentId}/overview/${tournament.invitationCode ? `?invitationCode=${tournament.invitationCode}` : ''}`;
           router.push(url);
         }
       }

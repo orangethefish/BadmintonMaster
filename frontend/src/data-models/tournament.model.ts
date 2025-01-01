@@ -14,10 +14,14 @@ export interface TournamentModel {
   invitationCode?: number;
 }
 
-export interface TournamentInfoModel {
-  tournament: TournamentModel;
-  formats: FormatModel[];
-  groupTeams: GroupTeamModel[];
+export interface FormatInfoModel{
+  format: FormatModel,
+  groupsAndTeams: GroupTeamModel[],
+}
+
+export interface TournamentInfoModel{
+    tournament: TournamentModel,
+    formats: FormatInfoModel[]
 }
 
 export const defaultTournament: TournamentModel = {

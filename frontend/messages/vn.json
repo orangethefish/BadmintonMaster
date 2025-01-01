@@ -85,7 +85,8 @@
     "sections": {
       "basicInfo": "Thông Tin Cơ Bản",
       "formats": "Thể Thức Thi Đấu",
-      "groupsAndTeams": "Bảng Đấu & Đội"
+      "groupsAndTeams": "Bảng Đấu & Đội",
+      "matches": "Trận Đấu"
     },
     "fields": {
       "description": "Mô Tả",
@@ -104,12 +105,23 @@
     "notifications": {
       "tournamentCreated": "Tạo giải đấu thành công!",
       "clickToCopy": "Nhấn vào đây để sao chép mã mời",
-      "codeCopied": "Đã sao chép mã mời vào bộ nhớ tạm!"
+      "codeCopied": "Đã sao chép mã mời vào bộ nhớ tạm!",
+      "savingGroups": "Đang lưu...",
+      "groupsSaved": "Lưu thành công!"
     },
     "errors": {
       "fetchFailed": "Không thể tải thông tin giải đấu",
-      "notFound": "Không tìm thấy giải đấu"
-    }
+      "notFound": "Không tìm thấy giải đấu",
+      "noMatches": "Không có trận đấu nào"
+    },
+    "matchStatus": {
+      "pending": "Chưa Bắt Đầu",
+      "inProgress": "Đang Diễn Ra",
+      "completed": "Đã Kết Thúc",
+      "cancelled": "Đã Hủy"
+    },
+    "viewMatches": "Xem Trận Đấu",
+    "backToOverview": "Quay Lại Tổng Quan"
   },
   "JoinTournament": {
     "title": "Tham Gia Giải Đấu",
