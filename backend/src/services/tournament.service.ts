@@ -94,7 +94,11 @@ export class TournamentService {
     // Check if tournament exists if ID is provided
     if (tournament.tournamentId) {
       try {
-        await this.getTournamentById(tournament.tournamentId);
+        const existingTournament = await this.getTournamentById(tournament.tournamentId);
+        // Verify ownership
+        if (existingTournament.ownerId !== tournament.ownerId) {
+          throw new Error('Access denied. You are not the owner of this tournament.');
+        }
         return this.updateTournament(tournament);
       } catch (error) {
         // If tournament not found, proceed with creation
@@ -121,12 +125,13 @@ export class TournamentService {
 
     return new Promise((resolve, reject) => {
       const sql = `INSERT INTO Tournament (
-        Name, Description, Deleted,
+        OwnerId, Name, Description, Deleted,
         DateCreated, DateModified, DateDeleted,
         StartDate, EndDate, InvitationCode
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
       const params = [
+        tournament.ownerId,
         tournament.name,
         tournament.description,
         false, // Deleted
@@ -172,7 +177,7 @@ export class TournamentService {
         StartDate = ?,
         EndDate = ?,
         InvitationCode = ?
-        WHERE TournamentId = ?`;
+        WHERE TournamentId = ? AND OwnerId = ?`;
 
       const params = [
         tournament.name,
@@ -181,7 +186,8 @@ export class TournamentService {
         tournament.startDate,
         tournament.endDate,
         tournament.invitationCode,
-        tournament.tournamentId
+        tournament.tournamentId,
+        tournament.ownerId
       ];
 
       const self = this;
@@ -192,7 +198,7 @@ export class TournamentService {
           return;
         }
         if (this.changes === 0) {
-          reject(new Error('Tournament not found'));
+          reject(new Error('Tournament not found or access denied'));
           return;
         }
         try {

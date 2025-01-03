@@ -11,6 +11,8 @@ import { TeamService } from '../services/team.service';
 import { MatchService } from '../services/match.service';
 import { MatchGeneratorService } from '../services/match-generator.service';
 import { handleDates } from '../middleware/dateHandler.middleware';
+import { verifyToken } from '../middleware/auth.middleware';
+import { OwnerMiddleware } from '../middleware/owner.middleware';
 
 interface CreateTournamentRequest {
   tournament: TournamentModel;
@@ -24,6 +26,7 @@ export class TournamentController {
   private teamService: TeamService;
   private matchService: MatchService;
   private matchGeneratorService: MatchGeneratorService;
+  private ownerMiddleware: OwnerMiddleware;
   public router: Router;
 
   constructor() {
@@ -33,22 +36,23 @@ export class TournamentController {
     this.teamService = new TeamService();
     this.matchService = new MatchService();
     this.matchGeneratorService = new MatchGeneratorService();
+    this.ownerMiddleware = new OwnerMiddleware();
     this.router = Router();
     this.setupRoutes();
   }
 
   private setupRoutes(): void {
     // Create/Update tournament with formats
-    this.router.post('/', handleDates, this.add.bind(this));
+    this.router.post('/', [verifyToken, handleDates], this.add.bind(this));
     
     // Create/Update groups and teams
-    this.router.post('/:tournamentId/groups', handleDates, this.saveGroups.bind(this));
+    this.router.post('/:tournamentId/groups', [verifyToken, this.ownerMiddleware.verifyTournamentOwner, handleDates], this.saveGroups.bind(this));
 
     // Get tournament info
-    this.router.get('/:tournamentId', this.getTournamentInfo.bind(this));
+    this.router.get('/:tournamentId', verifyToken, this.getTournamentInfo.bind(this));
 
     // Get tournament matches
-    this.router.get('/:tournamentId/matches', this.getTournamentMatches.bind(this));
+    this.router.get('/:tournamentId/matches', verifyToken, this.getTournamentMatches.bind(this));
   }
 
   public async getTournamentInfo(req: Request, res: Response): Promise<void> {
@@ -103,6 +107,9 @@ export class TournamentController {
   public async add(req: Request, res: Response): Promise<void> {
     try {
       const { tournament, formats } = req.body as CreateTournamentRequest;
+      
+      // Set owner ID from authenticated user
+      tournament.ownerId = req.user!.userId;
       
       // Create or update tournament
       const createdTournament = await this.tournamentService.addOrUpdateTournament(tournament);

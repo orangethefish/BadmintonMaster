@@ -32,12 +32,33 @@ export default function NewTournamentPage() {
   const t = useTranslations('NewTournament');
   const router = useRouter();
   const tournamentService = ServiceFactory.getTournamentService();
+  const authService = ServiceFactory.getAuthService();
   const [currentStep, setCurrentStep] = useState(TournamentCreationStep.TOURNAMENT_INFO);
-  const [tournament, setTournament] = useState<TournamentModel>(defaultTournament);
+  const [tournament, setTournament] = useState<TournamentModel>({
+    ...defaultTournament,
+    ownerId: authService.getUser()?.userId || null
+  });
   const [formats, setFormats] = useState<FormatModel[]>([{ ...defaultFormat }]);
   const [groupTeams, setGroupTeams] = useState<GroupTeamModel[]>([]);
   const [activeFormatIndex, setActiveFormatIndex] = useState(0);
 
+  useEffect(() => {
+    // Check if user is authenticated
+    if (!authService.isAuthenticated()) {
+      const currentPath = window.location.pathname;
+      router.push(`/login?redirect=${encodeURIComponent(currentPath)}`);
+      return;
+    }
+
+    // Set ownerId when user data is available
+    const user = authService.getUser();
+    if (user) {
+      setTournament(prev => ({
+        ...prev,
+        ownerId: user.userId
+      }));
+    }
+  }, []);
 
   const handleTournamentChange = (field: string, value: string) => {
     setTournament(prev => ({

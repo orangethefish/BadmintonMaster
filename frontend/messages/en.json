@@ -145,5 +145,36 @@
     "namePlaceholder": "Enter your name",
     "joinButton": "Join Tournament",
     "cancelButton": "Cancel"
+  },
+  "Auth": {
+    "login": {
+      "title": "Sign in to your account",
+      "noAccount": "Don't have an account?",
+      "registerLink": "Register here",
+      "submit": "Sign in"
+    },
+    "register": {
+      "title": "Create a new account",
+      "haveAccount": "Already have an account?",
+      "loginLink": "Sign in here",
+      "submit": "Register"
+    },
+    "fields": {
+      "username": "Username",
+      "password": "Password",
+      "email": "Email",
+      "firstName": "First Name",
+      "lastName": "Last Name"
+    },
+    "notifications": {
+      "loginSuccess": "Successfully signed in",
+      "registerSuccess": "Successfully registered",
+      "logoutSuccess": "Successfully signed out"
+    },
+    "errors": {
+      "loginFailed": "Failed to sign in",
+      "registerFailed": "Failed to register",
+      "invalidCredentials": "Invalid username or password"
+    }
   }
 }

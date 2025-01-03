@@ -5,6 +5,7 @@ export interface TournamentModel {
   tournamentId?: number;
   name: string;
   description: string;
+  ownerId?: string | null;
   deleted?: boolean;
   dateCreated?: string;
   dateModified?: string;
@@ -28,7 +29,8 @@ export const defaultTournament: TournamentModel = {
   name: '',
   description: '',
   startDate: '',
-  endDate: ''
+  endDate: '',
+  ownerId: null
 }; 
 
 
