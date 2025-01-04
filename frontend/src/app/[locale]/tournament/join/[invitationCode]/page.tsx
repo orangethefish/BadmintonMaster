@@ -8,30 +8,29 @@ import { NotificationService } from '@/services/notification/notification.servic
 import { FormatMatchModel } from '@/data-models/match.model';
 import { MatchList } from '@/app/[locale]/components/match/MatchList';
 import { FormatType } from '@/enums/tournament.enum';
-import { MatchModel as UIMatchModel, TeamModel as UITeamModel } from '@/data-models/tournament.model';
 
-function mapToUITeams(teams: { teamId?: number; player1Name: string; player2Name?: string; }[]): UITeamModel[] {
-  return teams.map(t => ({
-    id: t.teamId?.toString() || '',
-    name: t.player2Name ? `${t.player1Name} & ${t.player2Name}` : t.player1Name,
-    players: [t.player1Name, ...(t.player2Name ? [t.player2Name] : [])]
-  }));
-}
+// function mapToUITeams(teams: { teamId?: number; player1Name: string; player2Name?: string; }[]): UITeamModel[] {
+//   return teams.map(t => ({
+//     id: t.teamId?.toString() || '',
+//     name: t.player2Name ? `${t.player1Name} & ${t.player2Name}` : t.player1Name,
+//     players: [t.player1Name, ...(t.player2Name ? [t.player2Name] : [])]
+//   }));
+// }
 
-function mapToUIMatches(matches: { matchId?: number; team1Id: number; team2Id: number; team1Score?: number; team2Score?: number; result: number; startTime?: string; endTime?: string; }[]): UIMatchModel[] {
-  return matches.map(m => ({
-    id: m.matchId?.toString() || '',
-    team1Id: m.team1Id.toString(),
-    team2Id: m.team2Id.toString(),
-    score1: m.team1Score,
-    score2: m.team2Score,
-    status: m.result === 0 ? 'pending' :
-           m.result === 1 ? 'inProgress' :
-           m.result >= 3 ? 'completed' : 'cancelled',
-    startTime: m.startTime,
-    endTime: m.endTime
-  }));
-}
+// function mapToUIMatches(matches: { matchId?: number; team1Id: number; team2Id: number; team1Score?: number; team2Score?: number; result: number; startTime?: string; endTime?: string; }[]): UIMatchModel[] {
+//   return matches.map(m => ({
+//     id: m.matchId?.toString() || '',
+//     team1Id: m.team1Id.toString(),
+//     team2Id: m.team2Id.toString(),
+//     score1: m.team1Score,
+//     score2: m.team2Score,
+//     status: m.result === 0 ? 'pending' :
+//            m.result === 1 ? 'inProgress' :
+//            m.result >= 3 ? 'completed' : 'cancelled',
+//     startTime: m.startTime,
+//     endTime: m.endTime
+//   }));
+// }
 
 export default function TournamentJoinDetailsPage() {
   const t = useTranslations('Tournament');
@@ -100,8 +99,8 @@ export default function TournamentJoinDetailsPage() {
                       {groupMatch.groupAndTeam.group.groupName}
                     </h3>
                     <MatchList 
-                      matches={mapToUIMatches(groupMatch.matches)} 
-                      teams={mapToUITeams(groupMatch.groupAndTeam.teams)} 
+                      matches={groupMatch.matches} 
+                      teams={groupMatch.groupAndTeam.teams} 
                     />
                   </div>
                 ))}

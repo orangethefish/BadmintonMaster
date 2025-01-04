@@ -3,7 +3,7 @@ import { db } from '../index';
 import { RunResult } from 'sqlite3';
 
 export class FormatService {
-  private async getFormatById(id: number): Promise<FormatModel> {
+  public async getFormatById(id: number): Promise<FormatModel> {
     return new Promise((resolve, reject) => {
       const sql = `
         SELECT 

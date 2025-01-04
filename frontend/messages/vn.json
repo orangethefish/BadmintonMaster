@@ -136,7 +136,8 @@
       "cancelled": "Đã Hủy"
     },
     "viewMatches": "Xem Trận Đấu",
-    "backToOverview": "Quay Lại Tổng Quan"
+    "backToOverview": "Quay Lại Tổng Quan",
+    "operateMatch": "Quản Lý Trận Đấu"
   },
   "JoinTournament": {
     "title": "Tham Gia Giải Đấu",

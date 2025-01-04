@@ -135,7 +135,8 @@
       "cancelled": "Cancelled"
     },
     "viewMatches": "View Matches",
-    "backToOverview": "Back to Overview"
+    "backToOverview": "Back to Overview",
+    "operateMatch": "Operate Match"
   },
   "JoinTournament": {
     "title": "Join Tournament",
