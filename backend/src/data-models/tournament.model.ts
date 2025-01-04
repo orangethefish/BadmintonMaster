@@ -4,6 +4,7 @@ import { GroupTeamModel } from './group.model';
 
 export interface TournamentModel {
   tournamentId?: number;
+  ownerId: string;
   name: string;
   description: string;
   deleted?: boolean;

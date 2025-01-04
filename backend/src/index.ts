@@ -4,6 +4,8 @@ import dotenv from 'dotenv';
 import sqlite3 from 'sqlite3';
 import { join } from 'path';
 import { TournamentController } from './controllers/tournament.controller';
+import { AuthController } from './controllers/auth.controller';
+import { verifyToken } from './middleware/auth.middleware';
 
 // Load environment variables
 dotenv.config();
@@ -26,9 +28,24 @@ export const db = new sqlite3.Database(dbPath, (err) => {
     // Enable foreign keys
     db.run('PRAGMA foreign_keys = ON');
 
+    // Create User table
+    db.run(`CREATE TABLE IF NOT EXISTS User (
+      UserId VARCHAR(36) PRIMARY KEY NOT NULL,
+      Username VARCHAR(255) NOT NULL UNIQUE,
+      Password VARCHAR(255) NOT NULL,
+      Email VARCHAR(255) NOT NULL UNIQUE,
+      FirstName VARCHAR(255) NOT NULL,
+      LastName VARCHAR(255) NOT NULL,
+      Deleted BOOLEAN DEFAULT false,
+      DateCreated DATETIME,
+      DateModified DATETIME,
+      DateDeleted DATETIME
+    )`);
+
     // Create Tournament table
     db.run(`CREATE TABLE IF NOT EXISTS Tournament (
       TournamentId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      OwnerId VARCHAR(36) NOT NULL,
       Name VARCHAR(255) NOT NULL,
       Description VARCHAR(1000),
       Deleted BOOLEAN DEFAULT false,
@@ -37,7 +54,8 @@ export const db = new sqlite3.Database(dbPath, (err) => {
       DateDeleted DATETIME,
       StartDate DATETIME,
       EndDate DATETIME,
-      InvitationCode BIGINT
+      InvitationCode BIGINT,
+      FOREIGN KEY (OwnerId) REFERENCES User(UserId)
     )`);
 
     // Create Format table
@@ -152,9 +170,11 @@ export const db = new sqlite3.Database(dbPath, (err) => {
 
 // Initialize controllers
 const tournamentController = new TournamentController();
+const authController = new AuthController();
 
 // Routes
 app.use('/api/tournaments', tournamentController.router);
+app.use('/api/auth', authController.router);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the API' });

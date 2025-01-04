@@ -11,6 +11,8 @@ import { TeamService } from '../services/team.service';
 import { MatchService } from '../services/match.service';
 import { MatchGeneratorService } from '../services/match-generator.service';
 import { handleDates } from '../middleware/dateHandler.middleware';
+import { verifyToken } from '../middleware/auth.middleware';
+import { OwnerMiddleware } from '../middleware/owner.middleware';
 
 interface CreateTournamentRequest {
   tournament: TournamentModel;
@@ -24,6 +26,7 @@ export class TournamentController {
   private teamService: TeamService;
   private matchService: MatchService;
   private matchGeneratorService: MatchGeneratorService;
+  private ownerMiddleware: OwnerMiddleware;
   public router: Router;
 
   constructor() {
@@ -33,22 +36,26 @@ export class TournamentController {
     this.teamService = new TeamService();
     this.matchService = new MatchService();
     this.matchGeneratorService = new MatchGeneratorService();
+    this.ownerMiddleware = new OwnerMiddleware();
     this.router = Router();
     this.setupRoutes();
   }
 
   private setupRoutes(): void {
     // Create/Update tournament with formats
-    this.router.post('/', handleDates, this.add.bind(this));
+    this.router.post('/', [verifyToken, handleDates], this.add.bind(this));
     
     // Create/Update groups and teams
-    this.router.post('/:tournamentId/groups', handleDates, this.saveGroups.bind(this));
+    this.router.post('/:tournamentId/groups', [verifyToken, this.ownerMiddleware.verifyTournamentOwner, handleDates], this.saveGroups.bind(this));
 
     // Get tournament info
-    this.router.get('/:tournamentId', this.getTournamentInfo.bind(this));
+    this.router.get('/:tournamentId', verifyToken, this.getTournamentInfo.bind(this));
 
     // Get tournament matches
-    this.router.get('/:tournamentId/matches', this.getTournamentMatches.bind(this));
+    this.router.get('/:tournamentId/matches', verifyToken, this.getTournamentMatches.bind(this));
+
+    // Get tournament matches by invitation code
+    this.router.get('/matches/invitation/:invitationCode', this.getTournamentMatchesByInvitationCode.bind(this));
   }
 
   public async getTournamentInfo(req: Request, res: Response): Promise<void> {
@@ -103,6 +110,9 @@ export class TournamentController {
   public async add(req: Request, res: Response): Promise<void> {
     try {
       const { tournament, formats } = req.body as CreateTournamentRequest;
+      
+      // Set owner ID from authenticated user
+      tournament.ownerId = req.user!.userId;
       
       // Create or update tournament
       const createdTournament = await this.tournamentService.addOrUpdateTournament(tournament);
@@ -216,6 +226,55 @@ export class TournamentController {
       res.status(200).json(formatMatches);
     } catch (error) {
       console.error('Error getting tournament matches:', error);
+      if (error instanceof Error && error.message.includes('not found')) {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    }
+  }
+
+  public async getTournamentMatchesByInvitationCode(req: Request, res: Response): Promise<void> {
+    try {
+      const invitationCode = parseInt(req.params.invitationCode);
+
+      // Get tournament by invitation code
+      const tournament = await this.tournamentService.getTournamentByInvitationCode(invitationCode);
+
+      // Get formats for this tournament
+      const formats = await this.formatService.getFormatsByTournamentId(tournament.tournamentId!);
+
+      // Get matches for each format
+      const formatMatches = await Promise.all(
+        formats.map(async format => {
+          const groups = await this.groupService.getGroupsByFormatId(format.formatId!);
+          
+          // Get teams and matches for each group
+          const groupMatches = await Promise.all(
+            groups.map(async group => {
+              const teams = await this.teamService.getTeamsByGroupId(group.groupId!);
+              const matches = await this.matchService.getMatchesByGroupId(group.groupId!);
+              
+              return {
+                groupAndTeam: {
+                  group,
+                  teams
+                },
+                matches
+              } as GroupMatchModel;
+            })
+          );
+
+          return {
+            format,
+            groupMatches
+          } as FormatMatchModel;
+        })
+      );
+
+      res.status(200).json(formatMatches);
+    } catch (error) {
+      console.error('Error getting tournament matches by invitation code:', error);
       if (error instanceof Error && error.message.includes('not found')) {
         res.status(404).json({ error: error.message });
       } else {

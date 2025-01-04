@@ -142,9 +142,42 @@
     "title": "Tham Gia Giải Đấu",
     "codeLabel": "Mã Giải Đấu",
     "codePlaceholder": "Nhập mã giải đấu",
-    "nameLabel": "Tên Của Bạn",
-    "namePlaceholder": "Nhập tên của bạn",
     "joinButton": "Tham Gia",
-    "cancelButton": "Hủy Bỏ"
+    "cancelButton": "Hủy",
+    "notifications": {
+      "joinSuccess": "Tham gia giải đấu thành công",
+      "joinFailed": "Không thể tham gia giải đấu"
+    }
+  },
+  "Auth": {
+    "login": {
+      "title": "Đăng nhập vào tài khoản",
+      "noAccount": "Chưa có tài khoản?",
+      "registerLink": "Đăng ký tại đây",
+      "submit": "Đăng nhập"
+    },
+    "register": {
+      "title": "Tạo tài khoản mới",
+      "haveAccount": "Đã có tài khoản?",
+      "loginLink": "Đăng nhập tại đây",
+      "submit": "Đăng ký"
+    },
+    "fields": {
+      "username": "Tên đăng nhập",
+      "password": "Mật khẩu",
+      "email": "Email",
+      "firstName": "Tên",
+      "lastName": "Họ"
+    },
+    "notifications": {
+      "loginSuccess": "Đăng nhập thành công",
+      "registerSuccess": "Đăng ký thành công",
+      "logoutSuccess": "Đăng xuất thành công"
+    },
+    "errors": {
+      "loginFailed": "Đăng nhập thất bại",
+      "registerFailed": "Đăng ký thất bại",
+      "invalidCredentials": "Tên đăng nhập hoặc mật khẩu không đúng"
+    }
   }
 }

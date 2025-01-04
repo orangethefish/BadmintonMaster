@@ -19,6 +19,7 @@ export default function TournamentOverviewPage() {
   const [tournamentInfo, setTournamentInfo] = useState<TournamentInfoModel | null>(null);
   const [loading, setLoading] = useState(true);
   const [activeFormatIndex, setActiveFormatIndex] = useState(0);
+  let hasDisplayedNotification = false;
 
   useEffect(() => {
     const fetchTournamentInfo = async () => {
@@ -37,7 +38,8 @@ export default function TournamentOverviewPage() {
   }, [params.id]);
 
   useEffect(() => {
-    if (invitationCode) {
+    if (invitationCode && !hasDisplayedNotification) {
+      hasDisplayedNotification = true;
       toast.custom(
         <div className="bg-[#39846d] text-white px-6 py-4 rounded-lg shadow-lg">
           <div className="flex flex-col">

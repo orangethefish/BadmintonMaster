@@ -34,4 +34,8 @@ export class TournamentService extends BaseApiService {
   async joinTournament(code: string): Promise<TournamentModel> {
     return this.post<TournamentModel>(`${this.endpoint}/join`, { code });
   }
+
+  async getMatchesByInvitationCode(code: string): Promise<FormatMatchModel[]> {
+    return this.get<FormatMatchModel[]>(`${this.endpoint}/matches/invitation/${code}`);
+  }
 } 

@@ -93,7 +93,7 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">{t('features.management.title')}</h3>
+              <h3 className="text-xl text-black font-semibold mb-2">{t('features.management.title')}</h3>
               <p className="text-gray-600">{t('features.management.description')}</p>
             </div>
             <div className="p-6">
@@ -103,7 +103,7 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M20.488 9H15V3.512A9.025 9.025 0 0120.488 9z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">{t('features.updates.title')}</h3>
+              <h3 className="text-xl text-black font-semibold mb-2">{t('features.updates.title')}</h3>
               <p className="text-gray-600">{t('features.updates.description')}</p>
             </div>
             <div className="p-6">
@@ -112,7 +112,7 @@ export default function HomePage() {
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
               </div>
-              <h3 className="text-xl font-semibold mb-2">{t('features.scheduling.title')}</h3>
+              <h3 className="text-xl text-black font-semibold mb-2">{t('features.scheduling.title')}</h3>
               <p className="text-gray-600">{t('features.scheduling.description')}</p>
             </div>
           </div>
