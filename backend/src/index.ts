@@ -5,6 +5,7 @@ import sqlite3 from 'sqlite3';
 import { join } from 'path';
 import { TournamentController } from './controllers/tournament.controller';
 import { AuthController } from './controllers/auth.controller';
+import { MatchController } from './controllers/match.controller';
 import { verifyToken } from './middleware/auth.middleware';
 
 // Load environment variables
@@ -67,7 +68,6 @@ export const db = new sqlite3.Database(dbPath, (err) => {
       GroupMaxScore INT,
       GroupBestOf INT,
       GroupWinningCondition INT,
-      GroupOffBestOf INT,
       PlayOffScore INT,
       PlayOffMaxScore INT,
       PlayOffBestOf INT,
@@ -171,10 +171,12 @@ export const db = new sqlite3.Database(dbPath, (err) => {
 // Initialize controllers
 const tournamentController = new TournamentController();
 const authController = new AuthController();
+const matchController = new MatchController();
 
 // Routes
 app.use('/api/tournaments', tournamentController.router);
 app.use('/api/auth', authController.router);
+app.use('/api/matches', matchController.router);
 
 app.get('/', (req, res) => {
   res.json({ message: 'Welcome to the API' });

@@ -6,6 +6,7 @@ export interface MatchModel {
   matchId?: string;
   parentMatchId?: string;
   formatId: number;
+  format?: FormatModel;
   groupId?: number;
   team1Id?: number;
   team2Id?: number;

@@ -2,7 +2,9 @@ import { BaseApiService } from '../api/base.service';
 import { TournamentModel, CreateTournamentRequest, TournamentInfoModel } from '@/data-models/tournament.model';
 import { GroupModel, GroupTeamModel } from '@/data-models/group.model';
 import { TeamModel } from '@/data-models/team.model';
-import { FormatMatchModel } from '@/data-models/match.model';
+import { FormatMatchModel, MatchModel, MatchStatus } from '@/data-models/match.model';
+import { FormatModel } from '@/data-models/format.model';
+import { UserModel } from '@/data-models/auth.model';
 
 export class TournamentService extends BaseApiService {
   private readonly endpoint = '/tournaments';
@@ -38,4 +40,6 @@ export class TournamentService extends BaseApiService {
   async getMatchesByInvitationCode(code: string): Promise<FormatMatchModel[]> {
     return this.get<FormatMatchModel[]>(`${this.endpoint}/matches/invitation/${code}`);
   }
+
+  
 } 

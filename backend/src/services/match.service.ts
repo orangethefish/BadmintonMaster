@@ -180,4 +180,61 @@ export class MatchService {
       });
     });
   }
+
+  public async updateMatch(match: MatchModel): Promise<MatchModel> {
+    return new Promise((resolve, reject) => {
+      const sql = `UPDATE Match SET
+        ParentMatchId = ?,
+        FormatId = ?,
+        GroupId = ?,
+        Team1Id = ?,
+        Team2Id = ?,
+        Team1FinalScore = ?,
+        Team2FinalScore = ?,
+        UmpireId = ?,
+        CourtNum = ?,
+        WinnerId = ?,
+        Result = ?,
+        ExtendData = ?,
+        DateModified = ?
+        WHERE MatchId = ?`;
+
+      const now = new Date().toISOString();
+      const params = [
+        match.parentMatchId,
+        match.formatId,
+        match.groupId,
+        match.team1Id,
+        match.team2Id,
+        match.team1FinalScore,
+        match.team2FinalScore,
+        match.umpireId,
+        match.courtNum,
+        match.winnerId,
+        match.result,
+        match.extendData,
+        now,
+        match.matchId
+      ];
+
+      const self = this;
+      db.run(sql, params, async function(this: RunResult, err: Error | null) {
+        if (err) {
+          console.error('Error updating match:', err);
+          reject(err);
+          return;
+        }
+        if (this.changes === 0) {
+          reject(new Error('Match not found'));
+          return;
+        }
+        try {
+          const updatedMatch = await self.getMatchById(match.matchId!);
+          resolve(updatedMatch);
+        } catch (error) {
+          reject(error);
+        }
+      });
+    });
+  }
 } 

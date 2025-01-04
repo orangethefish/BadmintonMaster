@@ -2,7 +2,9 @@ import { FormatModel } from "./format.model";
 import { GroupTeamModel } from "./group.model";
 
 export interface MatchModel {
-  matchId?: number;
+  matchId?: string;
+  formatId: number;
+  format?: FormatModel;
   team1Score?: number;
   team2Score?: number;
   team1Id: number;
@@ -10,6 +12,7 @@ export interface MatchModel {
   result: MatchStatus;
   startTime?: string;
   endTime?: string;
+  umpireId?: string;
 }
 
 export interface GroupMatchModel {

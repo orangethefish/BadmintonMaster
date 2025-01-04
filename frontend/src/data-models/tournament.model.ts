@@ -1,5 +1,7 @@
 import { FormatModel } from "./format.model";
 import { GroupTeamModel } from "./group.model";
+import { MatchStatus } from "./match.model";
+import { MatchModel } from "./match.model";
 
 export interface TournamentModel {
   tournamentId?: number;
@@ -39,41 +41,14 @@ export interface CreateTournamentRequest {
   formats: FormatModel[];
 }
 
-export interface FormatModel {
-  id: string;
-  type: string;
-  name: string;
-}
-
 export interface GroupModel {
   id: string;
   name: string;
 }
 
-export interface TeamModel {
-  id: string;
-  name: string;
-  players: string[];
-}
-
-export interface MatchModel {
-  id: string;
-  team1Id: string;
-  team2Id: string;
-  score1?: number;
-  score2?: number;
-  status: 'pending' | 'inProgress' | 'completed' | 'cancelled';
-  startTime?: string;
-  endTime?: string;
-}
-
-export interface GroupAndTeamModel {
-  group: GroupModel;
-  teams: TeamModel[];
-}
 
 export interface GroupMatchModel {
-  groupAndTeam: GroupAndTeamModel;
+  groupAndTeam: GroupTeamModel;
   matches: MatchModel[];
 }
 
