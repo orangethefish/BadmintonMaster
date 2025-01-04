@@ -12,6 +12,7 @@ export interface MatchModel {
   result: MatchStatus;
   startTime?: string;
   endTime?: string;
+  umpireId?: string;
 }
 
 export interface GroupMatchModel {

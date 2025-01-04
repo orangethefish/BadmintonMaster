@@ -35,6 +35,8 @@ export default function MatchOperationPage() {
   const router = useRouter();
   const params = useParams();
   const matchId = params.id as string;
+  const matchService = ServiceFactory.getMatchService();
+  const authService = ServiceFactory.getAuthService();
   const [match, setMatch] = useState<MatchModel | null>(null);
   const [team1, setTeam1] = useState<TeamModel | null>(null);
   const [team2, setTeam2] = useState<TeamModel | null>(null);
@@ -50,16 +52,30 @@ export default function MatchOperationPage() {
   useEffect(() => {
     const fetchMatchDetails = async () => {
       try {
-        const tournamentService = ServiceFactory.getTournamentService();
+        const currentUser = authService.getUser();
+        if (!currentUser) {
+          NotificationService.error('Please login to operate matches');
+          router.push('/');
+          return;
+        }
+
         const [matchDetails, formatDetails] = await Promise.all([
-          tournamentService.getMatchDetails(matchId),
-          tournamentService.getMatchFormat(matchId)
+          matchService.getMatchDetails(matchId),
+          matchService.getMatchFormat(matchId)
         ]);
 
+        // Check if match has an umpire and if it's not the current user
+        if (matchDetails.match.umpireId && matchDetails.match.umpireId !== currentUser.userId) {
+          NotificationService.error('You are not authorized to operate this match');
+          router.push('/');
+          return;
+        }
+
+        debugger;
         setMatch(matchDetails.match);
         setTeam1(matchDetails.team1);
         setTeam2(matchDetails.team2);
-        setFormat(formatDetails);
+        setFormat(formatDetails?.format ?? null);
 
         // Initialize players and scores
         if (matchDetails.team1 && matchDetails.team2) {
@@ -154,8 +170,7 @@ export default function MatchOperationPage() {
         ]
       };
 
-      const tournamentService = ServiceFactory.getTournamentService();
-      await tournamentService.updateMatchScore(matchId, {
+      await matchService.updateMatchScore(matchId, {
         team1Score: newTeam1Score,
         team2Score: newTeam2Score,
         result: matchResult || MatchStatus.IN_PROGRESS
@@ -180,8 +195,7 @@ export default function MatchOperationPage() {
 
     try {
       const lastState = matchState.history[matchState.history.length - 1];
-      const tournamentService = ServiceFactory.getTournamentService();
-      await tournamentService.updateMatchScore(matchId, {
+      await matchService.updateMatchScore(matchId, {
         team1Score: lastState.team1Score,
         team2Score: lastState.team2Score,
         result: MatchStatus.IN_PROGRESS
@@ -209,7 +223,7 @@ export default function MatchOperationPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-50 py-8 px-4">
+    <main className="min-h-screen bg-gray-50 py-8 px-4 text-black">
       <div className="max-w-3xl mx-auto">
         <div className="bg-white rounded-xl shadow-lg overflow-hidden">
           <div className="bg-[#39846d] text-white px-8 py-6">

@@ -8,7 +8,6 @@ export interface FormatModel {
   groupMaxScore: number;
   groupBestOf: BestOf;
   groupWinningCondition: WinningCondition;
-  groupOffBestOf: BestOf;
   playOffScore: number;
   playOffMaxScore: number;
   playOffBestOf: BestOf;

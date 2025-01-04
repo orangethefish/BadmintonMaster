@@ -1,8 +1,11 @@
 import { Request, Response, Router } from 'express';
 import { MatchService } from '../services/match.service';
 import { FormatService } from '../services/format.service';
+import { TeamService } from '../services/team.service';
 import { verifyToken } from '../middleware/auth.middleware';
 import { MatchStatus } from '../enums/match.enum';
+import { TeamModel } from '../data-models/team.model';
+import { MatchModel } from '../data-models/match.model';
 
 interface UpdateMatchScoreRequest {
   team1Score: number;
@@ -10,14 +13,22 @@ interface UpdateMatchScoreRequest {
   result: MatchStatus;
 }
 
+interface MatchDetails {
+  match: MatchModel;
+  team1: TeamModel;
+  team2: TeamModel;
+}
+
 export class MatchController {
   private matchService: MatchService;
   private formatService: FormatService;
+  private teamService: TeamService;
   public router: Router;
 
   constructor() {
     this.matchService = new MatchService();
     this.formatService = new FormatService();
+    this.teamService = new TeamService();
     this.router = Router();
     this.setupRoutes();
   }
@@ -28,6 +39,9 @@ export class MatchController {
     
     // Get match format
     this.router.get('/:matchId/format', verifyToken, this.getMatchFormat.bind(this));
+
+    // Get match details
+    this.router.get('/:matchId/details', verifyToken, this.getMatchDetails.bind(this));
 
     // Update match score
     this.router.put('/:matchId/score', verifyToken, this.updateMatchScore.bind(this));
@@ -89,6 +103,41 @@ export class MatchController {
       res.status(200).json(matchWithFormat);
     } catch (error) {
       console.error('Error getting match format:', error);
+      if (error instanceof Error && error.message.includes('not found')) {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    }
+  }
+
+  public async getMatchDetails(req: Request, res: Response): Promise<void> {
+    try {
+      const matchId = req.params.matchId;
+
+      // Get match details
+      const match = await this.matchService.getMatchById(matchId);
+
+      // Get team details
+      const [team1, team2] = await Promise.all([
+        match.team1Id ? this.teamService.getTeamById(match.team1Id) : null,
+        match.team2Id ? this.teamService.getTeamById(match.team2Id) : null
+      ]);
+
+      if (!team1 || !team2) {
+        res.status(404).json({ error: 'One or both teams not found' });
+        return;
+      }
+
+      const matchDetails: MatchDetails = {
+        match,
+        team1,
+        team2
+      };
+
+      res.status(200).json(matchDetails);
+    } catch (error) {
+      console.error('Error getting match details:', error);
       if (error instanceof Error && error.message.includes('not found')) {
         res.status(404).json({ error: error.message });
       } else {

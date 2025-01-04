@@ -68,7 +68,6 @@ export const db = new sqlite3.Database(dbPath, (err) => {
       GroupMaxScore INT,
       GroupBestOf INT,
       GroupWinningCondition INT,
-      GroupOffBestOf INT,
       PlayOffScore INT,
       PlayOffMaxScore INT,
       PlayOffBestOf INT,

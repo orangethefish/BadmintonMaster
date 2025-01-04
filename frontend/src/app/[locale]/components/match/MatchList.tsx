@@ -17,6 +17,7 @@ interface MatchListProps {
 export function MatchList({ matches, teams }: MatchListProps) {
   const t = useTranslations('Tournament');
   const tournamentService = ServiceFactory.getTournamentService();
+  const matchService = ServiceFactory.getMatchService();
   const authService = ServiceFactory.getAuthService();
   const [user, setUser] = useState(authService.getUser());
   const router = useRouter();
@@ -37,7 +38,7 @@ export function MatchList({ matches, teams }: MatchListProps) {
 
   const handleOperateMatch = async (matchId: string) => {
     if (user) {
-      const response = await tournamentService.assignUmpireToMatch(Number(matchId), user?.userId);
+      const response = await matchService.assignUmpireToMatch(matchId, user?.userId);
       if (response) {
         NotificationService.success('Umpire assigned successfully');
         router.push(`/match/${matchId}`);
