@@ -142,10 +142,12 @@
     "title": "Tham Gia Giải Đấu",
     "codeLabel": "Mã Giải Đấu",
     "codePlaceholder": "Nhập mã giải đấu",
-    "nameLabel": "Tên Của Bạn",
-    "namePlaceholder": "Nhập tên của bạn",
     "joinButton": "Tham Gia",
-    "cancelButton": "Hủy Bỏ"
+    "cancelButton": "Hủy",
+    "notifications": {
+      "joinSuccess": "Tham gia giải đấu thành công",
+      "joinFailed": "Không thể tham gia giải đấu"
+    }
   },
   "Auth": {
     "login": {

@@ -53,6 +53,9 @@ export class TournamentController {
 
     // Get tournament matches
     this.router.get('/:tournamentId/matches', verifyToken, this.getTournamentMatches.bind(this));
+
+    // Get tournament matches by invitation code
+    this.router.get('/matches/invitation/:invitationCode', this.getTournamentMatchesByInvitationCode.bind(this));
   }
 
   public async getTournamentInfo(req: Request, res: Response): Promise<void> {
@@ -223,6 +226,55 @@ export class TournamentController {
       res.status(200).json(formatMatches);
     } catch (error) {
       console.error('Error getting tournament matches:', error);
+      if (error instanceof Error && error.message.includes('not found')) {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    }
+  }
+
+  public async getTournamentMatchesByInvitationCode(req: Request, res: Response): Promise<void> {
+    try {
+      const invitationCode = parseInt(req.params.invitationCode);
+
+      // Get tournament by invitation code
+      const tournament = await this.tournamentService.getTournamentByInvitationCode(invitationCode);
+
+      // Get formats for this tournament
+      const formats = await this.formatService.getFormatsByTournamentId(tournament.tournamentId!);
+
+      // Get matches for each format
+      const formatMatches = await Promise.all(
+        formats.map(async format => {
+          const groups = await this.groupService.getGroupsByFormatId(format.formatId!);
+          
+          // Get teams and matches for each group
+          const groupMatches = await Promise.all(
+            groups.map(async group => {
+              const teams = await this.teamService.getTeamsByGroupId(group.groupId!);
+              const matches = await this.matchService.getMatchesByGroupId(group.groupId!);
+              
+              return {
+                groupAndTeam: {
+                  group,
+                  teams
+                },
+                matches
+              } as GroupMatchModel;
+            })
+          );
+
+          return {
+            format,
+            groupMatches
+          } as FormatMatchModel;
+        })
+      );
+
+      res.status(200).json(formatMatches);
+    } catch (error) {
+      console.error('Error getting tournament matches by invitation code:', error);
       if (error instanceof Error && error.message.includes('not found')) {
         res.status(404).json({ error: error.message });
       } else {

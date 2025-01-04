@@ -5,6 +5,7 @@ export interface UserModel {
   email: string;
   firstName: string;
   lastName: string;
+  refName?: string;
   deleted?: boolean;
   dateCreated?: string;
   dateModified?: string;

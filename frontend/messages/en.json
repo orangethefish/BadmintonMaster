@@ -141,10 +141,12 @@
     "title": "Join Tournament",
     "codeLabel": "Tournament Code",
     "codePlaceholder": "Enter tournament code",
-    "nameLabel": "Your Name",
-    "namePlaceholder": "Enter your name",
     "joinButton": "Join Tournament",
-    "cancelButton": "Cancel"
+    "cancelButton": "Cancel",
+    "notifications": {
+      "joinSuccess": "Successfully joined tournament",
+      "joinFailed": "Failed to join tournament"
+    }
   },
   "Auth": {
     "login": {

@@ -109,6 +109,9 @@ export class AuthService {
           reject(err);
           return;
         }
+        if (row) {
+          row.refName = `${row.firstName} ${row.lastName}`;
+        }
         resolve(row || null);
       });
     });
@@ -131,6 +134,9 @@ export class AuthService {
         if (err) {
           reject(err);
           return;
+        }
+        if (row) {
+          row.refName = `${row.firstName} ${row.lastName}`;
         }
         resolve(row || null);
       });
@@ -163,6 +169,7 @@ export class AuthService {
           reject(new Error('User not found'));
           return;
         }
+        row.refName = `${row.firstName} ${row.lastName}`;
         resolve(row);
       });
     });

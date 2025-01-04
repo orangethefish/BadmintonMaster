@@ -210,4 +210,36 @@ export class TournamentService {
       });
     });
   }
+
+  public async getTournamentByInvitationCode(invitationCode: number): Promise<TournamentModel> {
+    return new Promise((resolve, reject) => {
+      const sql = `
+        SELECT 
+          TournamentId as tournamentId,
+          OwnerId as ownerId,
+          Name as name,
+          Description as description,
+          Deleted as deleted,
+          DateCreated as dateCreated,
+          DateModified as dateModified,
+          DateDeleted as dateDeleted,
+          StartDate as startDate,
+          EndDate as endDate,
+          InvitationCode as invitationCode
+        FROM Tournament 
+        WHERE InvitationCode = ? AND (Deleted = false OR Deleted IS NULL)`;
+      
+      db.get(sql, [invitationCode], (err: Error | null, row: any) => {
+        if (err) {
+          reject(err);
+          return;
+        }
+        if (!row) {
+          reject(new Error('Tournament not found'));
+          return;
+        }
+        resolve(row);
+      });
+    });
+  }
 } 
