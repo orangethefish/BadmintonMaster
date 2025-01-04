@@ -1,7 +1,7 @@
 import { FormatModel } from "./format.model";
 import { GroupTeamModel } from "./group.model";
+import { MatchStatus } from "./match.model";
 import { MatchModel } from "./match.model";
-import { TeamModel } from "./team.model";
 
 export interface TournamentModel {
   tournamentId?: number;
@@ -46,13 +46,9 @@ export interface GroupModel {
   name: string;
 }
 
-export interface GroupAndTeamModel {
-  group: GroupModel;
-  teams: TeamModel[];
-}
 
 export interface GroupMatchModel {
-  groupAndTeam: GroupAndTeamModel;
+  groupAndTeam: GroupTeamModel;
   matches: MatchModel[];
 }
 
