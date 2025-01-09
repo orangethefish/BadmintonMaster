@@ -45,6 +45,9 @@ export class MatchController {
 
     // Update match score
     this.router.put('/:matchId/score', verifyToken, this.updateMatchScore.bind(this));
+
+    // Add game to match
+    this.router.post('/:matchId/games', verifyToken, this.addGame.bind(this));
   }
 
   public async assignUmpire(req: Request, res: Response): Promise<void> {
@@ -172,10 +175,29 @@ export class MatchController {
         return;
       }
 
-      // Validate result matches the scores
-      if ((result === MatchStatus.TEAM1_WINS && team1Score <= team2Score) ||
-          (result === MatchStatus.TEAM2_WINS && team2Score <= team1Score)) {
-        res.status(400).json({ error: 'Match result does not match the scores' });
+      // Add new game
+      const game = {
+        matchId,
+        team1Score,
+        team2Score
+      };
+
+      await this.matchService.addGame(game);
+
+      // Get all games for this match to determine the winner
+      const games = await this.matchService.getGamesByMatchId(matchId);
+      
+      // Calculate total scores
+      const totalScores = games.reduce((acc, game) => {
+        acc.team1 += game.team1Score || 0;
+        acc.team2 += game.team2Score || 0;
+        return acc;
+      }, { team1: 0, team2: 0 });
+
+      // Validate result matches the overall scores
+      if ((result === MatchStatus.TEAM1_WINS && totalScores.team1 <= totalScores.team2) ||
+          (result === MatchStatus.TEAM2_WINS && totalScores.team2 <= totalScores.team1)) {
+        res.status(400).json({ error: 'Match result does not match the overall scores' });
         return;
       }
 
@@ -184,18 +206,64 @@ export class MatchController {
                       result === MatchStatus.TEAM2_WINS ? match.team2Id : 
                       undefined;
 
-      // Update match with scores and result
+      // Update match with result
       const updatedMatch = await this.matchService.updateMatch({
         ...match,
-        team1FinalScore: team1Score,
-        team2FinalScore: team2Score,
         result,
         winnerId
       });
 
-      res.status(200).json(updatedMatch);
+      res.status(200).json({
+        ...updatedMatch,
+        games
+      });
     } catch (error) {
       console.error('Error updating match score:', error);
+      if (error instanceof Error && error.message.includes('not found')) {
+        res.status(404).json({ error: error.message });
+      } else {
+        res.status(500).json({ error: 'Internal server error' });
+      }
+    }
+  }
+
+  public async addGame(req: Request, res: Response): Promise<void> {
+    try {
+      const matchId = req.params.matchId;
+      const { team1Score, team2Score } = req.body;
+
+      // Validate request body
+      if (team1Score === undefined || team2Score === undefined) {
+        res.status(400).json({ error: 'Team scores are required' });
+        return;
+      }
+
+      // Get current match state
+      const match = await this.matchService.getMatchById(matchId);
+
+      // Verify the user is the assigned umpire
+      if (match.umpireId !== req.user!.userId) {
+        res.status(403).json({ error: 'Only the assigned umpire can add games' });
+        return;
+      }
+
+      // Verify match is in progress
+      if (match.result !== MatchStatus.IN_PROGRESS) {
+        res.status(400).json({ error: 'Can only add games to matches that are in progress' });
+        return;
+      }
+
+      // Add new game
+      const game = {
+        matchId,
+        team1Score,
+        team2Score
+      };
+
+      const newGame = await this.matchService.addGame(game);
+      res.status(201).json(newGame);
+    } catch (error) {
+      console.error('Error adding game:', error);
       if (error instanceof Error && error.message.includes('not found')) {
         res.status(404).json({ error: error.message });
       } else {

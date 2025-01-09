@@ -5,14 +5,20 @@ export interface MatchModel {
   matchId?: string;
   formatId: number;
   format?: FormatModel;
-  team1Score?: number;
-  team2Score?: number;
   team1Id: number;
   team2Id: number;
   result: MatchStatus;
   startTime?: string;
   endTime?: string;
   umpireId?: string;
+  game?: GameModel[];
+}
+
+export interface GameModel{
+  gameId?: number;
+  matchId?: string;
+  team1Score?: number;
+  team2Score?: number;
 }
 
 export interface GroupMatchModel {

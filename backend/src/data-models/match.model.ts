@@ -10,13 +10,23 @@ export interface MatchModel {
   groupId?: number;
   team1Id?: number;
   team2Id?: number;
-  team1FinalScore?: number;
-  team2FinalScore?: number;
+  game?: GameModel[];
   umpireId?: string;
   courtNum?: string;
   winnerId?: number;
   result?: MatchStatus;
   extendData?: string;
+  deleted?: boolean;
+  dateCreated?: string;
+  dateModified?: string;
+  dateDeleted?: string | null;
+}
+
+export interface GameModel{
+  gameId?: number;
+  matchId?: string;
+  team1Score?: number;
+  team2Score?: number;
   deleted?: boolean;
   dateCreated?: string;
   dateModified?: string;

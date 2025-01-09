@@ -20,13 +20,18 @@ interface MatchState {
   team2Players: Player[];
   server?: Player;
   receiver?: Player;
-  team1Score: number;
-  team2Score: number;
-  history: {
+  currentGame: number;
+  games: {
     team1Score: number;
     team2Score: number;
     server?: Player;
     receiver?: Player;
+    history: {
+      team1Score: number;
+      team2Score: number;
+      server?: Player;
+      receiver?: Player;
+    }[];
   }[];
 }
 
@@ -44,9 +49,12 @@ export default function MatchOperationPage() {
   const [matchState, setMatchState] = useState<MatchState>({
     team1Players: [],
     team2Players: [],
-    team1Score: 0,
-    team2Score: 0,
-    history: []
+    currentGame: 0,
+    games: [{
+      team1Score: 0,
+      team2Score: 0,
+      history: []
+    }]
   });
 
   useEffect(() => {
@@ -71,13 +79,16 @@ export default function MatchOperationPage() {
           return;
         }
 
-        debugger;
         setMatch(matchDetails.match);
         setTeam1(matchDetails.team1);
         setTeam2(matchDetails.team2);
         setFormat(formatDetails?.format ?? null);
 
-        // Initialize players and scores
+        if(formatDetails.result !== MatchStatus.IN_PROGRESS && formatDetails.result !== MatchStatus.PENDING){
+            router.back()
+        }
+
+        // Initialize players and games
         if (matchDetails.team1 && matchDetails.team2) {
           const team1Players: Player[] = [
             { id: 1, name: matchDetails.team1.player1Name },
@@ -87,12 +98,24 @@ export default function MatchOperationPage() {
             { id: 3, name: matchDetails.team2.player1Name },
             ...(matchDetails.team2.player2Name ? [{ id: 4, name: matchDetails.team2.player2Name }] : [])
           ];
+
+          // Initialize games from match data
+          const games = matchDetails.match.game?.map(game => ({
+            team1Score: game.team1Score || 0,
+            team2Score: game.team2Score || 0,
+            history: []
+          })) || [{
+            team1Score: 0,
+            team2Score: 0,
+            history: []
+          }];
+
           setMatchState(prev => ({
             ...prev,
             team1Players,
             team2Players,
-            team1Score: matchDetails.match.team1Score || 0,
-            team2Score: matchDetails.match.team2Score || 0
+            currentGame: games.length - 1,
+            games
           }));
         }
       } catch (error) {
@@ -106,19 +129,29 @@ export default function MatchOperationPage() {
   const handleSelectServer = (player: Player) => {
     setMatchState(prev => ({
       ...prev,
-      server: player
+      server: player,
+      games: prev.games.map((game, index) => 
+        index === prev.currentGame 
+          ? { ...game, server: player }
+          : game
+      )
     }));
   };
 
   const handleSelectReceiver = (player: Player) => {
     setMatchState(prev => ({
       ...prev,
-      receiver: player
+      receiver: player,
+      games: prev.games.map((game, index) => 
+        index === prev.currentGame 
+          ? { ...game, receiver: player }
+          : game
+      )
     }));
   };
 
-  const checkWinningCondition = (team1Score: number, team2Score: number): MatchStatus | null => {
-    if (!format) return null;
+  const checkGameWinningCondition = (team1Score: number, team2Score: number): boolean => {
+    if (!format) return false;
 
     const maxScore = format.groupMaxScore;
     const targetScore = format.groupScore;
@@ -126,19 +159,34 @@ export default function MatchOperationPage() {
 
     // Check if either team has reached the maximum score
     if (team1Score >= maxScore || team2Score >= maxScore) {
-      return team1Score > team2Score ? MatchStatus.TEAM1_WINS : MatchStatus.TEAM2_WINS;
+      return true;
     }
 
     // For exact score winning condition
     if (winningCondition === WinningCondition.EXACT) {
-      if (team1Score === targetScore) return MatchStatus.TEAM1_WINS;
-      if (team2Score === targetScore) return MatchStatus.TEAM2_WINS;
+      if (team1Score === targetScore || team2Score === targetScore) return true;
     }
     // For two points difference winning condition
     else if (winningCondition === WinningCondition.TWO_POINTS_DIFFERENCE) {
-      if (team1Score >= targetScore && team1Score - team2Score >= 2) return MatchStatus.TEAM1_WINS;
-      if (team2Score >= targetScore && team2Score - team1Score >= 2) return MatchStatus.TEAM2_WINS;
+      if ((team1Score >= targetScore && team1Score - team2Score >= 2) ||
+          (team2Score >= targetScore && team2Score - team1Score >= 2)) return true;
     }
+
+    return false;
+  };
+
+  const checkMatchWinningCondition = (games: MatchState['games']): MatchStatus | null => {
+    if (!format) return null;
+
+    const team1Wins = games.filter(game => game.team1Score > game.team2Score).length;
+    const team2Wins = games.filter(game => game.team2Score > game.team1Score).length;
+
+    const gamesNeededToWin = format.groupBestOf === BestOf.ONE ? 1 :
+                            format.groupBestOf === BestOf.THREE ? 2 :
+                            format.groupBestOf === BestOf.FIVE ? 3 : 1;
+
+    if (team1Wins >= gamesNeededToWin) return MatchStatus.TEAM1_WINS;
+    if (team2Wins >= gamesNeededToWin) return MatchStatus.TEAM2_WINS;
 
     return null;
   };
@@ -150,33 +198,60 @@ export default function MatchOperationPage() {
     }
 
     try {
-      const newTeam1Score = team === 'team1' ? matchState.team1Score + 1 : matchState.team1Score;
-      const newTeam2Score = team === 'team2' ? matchState.team2Score + 1 : matchState.team2Score;
+      const currentGame = matchState.games[matchState.currentGame];
+      const newTeam1Score = team === 'team1' ? currentGame.team1Score + 1 : currentGame.team1Score;
+      const newTeam2Score = team === 'team2' ? currentGame.team2Score + 1 : currentGame.team2Score;
 
-      const matchResult = checkWinningCondition(newTeam1Score, newTeam2Score);
-
-      const newState = {
-        ...matchState,
+      const newGames = [...matchState.games];
+      newGames[matchState.currentGame] = {
+        ...currentGame,
         team1Score: newTeam1Score,
         team2Score: newTeam2Score,
         history: [
-          ...matchState.history,
+          ...currentGame.history,
           {
-            team1Score: matchState.team1Score,
-            team2Score: matchState.team2Score,
+            team1Score: currentGame.team1Score,
+            team2Score: currentGame.team2Score,
             server: matchState.server,
             receiver: matchState.receiver
           }
         ]
       };
 
+      const gameFinished = checkGameWinningCondition(newTeam1Score, newTeam2Score);
+      const matchResult = checkMatchWinningCondition(newGames);
+
+      // If game is finished and match isn't over, start a new game
+      if (gameFinished && !matchResult) {
+        newGames.push({
+          team1Score: 0,
+          team2Score: 0,
+          history: []
+        });
+      }
+
+      // Update match score in the database
       await matchService.updateMatchScore(matchId, {
-        team1Score: newTeam1Score,
-        team2Score: newTeam2Score,
+        game: newGames.map(game => ({
+          team1Score: game.team1Score,
+          team2Score: game.team2Score
+        })),
         result: matchResult || MatchStatus.IN_PROGRESS
       });
 
-      setMatchState(newState);
+      setMatchState(prev => ({
+        ...prev,
+        currentGame: gameFinished && !matchResult ? prev.currentGame + 1 : prev.currentGame,
+        games: newGames
+      }));
+
+      if (gameFinished) {
+        NotificationService.success(
+          newTeam1Score > newTeam2Score
+            ? 'Team 1 wins the game!'
+            : 'Team 2 wins the game!'
+        );
+      }
 
       if (matchResult) {
         NotificationService.success(
@@ -191,24 +266,35 @@ export default function MatchOperationPage() {
   };
 
   const handleUndo = async () => {
-    if (matchState.history.length === 0) return;
+    const currentGame = matchState.games[matchState.currentGame];
+    if (currentGame.history.length === 0) return;
 
     try {
-      const lastState = matchState.history[matchState.history.length - 1];
-      await matchService.updateMatchScore(matchId, {
-        team1Score: lastState.team1Score,
-        team2Score: lastState.team2Score,
-        result: MatchStatus.IN_PROGRESS
-      });
-
-      setMatchState({
-        ...matchState,
+      const lastState = currentGame.history[currentGame.history.length - 1];
+      const newGames = [...matchState.games];
+      newGames[matchState.currentGame] = {
+        ...currentGame,
         team1Score: lastState.team1Score,
         team2Score: lastState.team2Score,
         server: lastState.server,
         receiver: lastState.receiver,
-        history: matchState.history.slice(0, -1)
+        history: currentGame.history.slice(0, -1)
+      };
+
+      await matchService.updateMatchScore(matchId, {
+        game: newGames.map(game => ({
+          team1Score: game.team1Score,
+          team2Score: game.team2Score
+        })),
+        result: MatchStatus.IN_PROGRESS
       });
+
+      setMatchState(prev => ({
+        ...prev,
+        server: lastState.server,
+        receiver: lastState.receiver,
+        games: newGames
+      }));
     } catch (error) {
       NotificationService.error(t('errors.updateFailed'));
     }
@@ -231,11 +317,11 @@ export default function MatchOperationPage() {
               <div>
                 <h1 className="text-3xl font-bold">Match Operation</h1>
                 <div className="mt-2 text-sm">
-                  {format.groupBestOf === BestOf.ONE ? 'Best of 1' :
-                   format.groupBestOf === BestOf.THREE ? 'Best of 3' :
-                   format.groupBestOf === BestOf.FIVE ? 'Best of 5' : 'Unknown format'} •{' '}
-                  {format.groupWinningCondition === WinningCondition.EXACT ? 'Exact Score' : 'Two Points Difference'} •{' '}
-                  Target: {format.groupScore} • Max: {format.groupMaxScore}
+                  {format?.groupBestOf === BestOf.ONE ? 'Best of 1' :
+                   format?.groupBestOf === BestOf.THREE ? 'Best of 3' :
+                   format?.groupBestOf === BestOf.FIVE ? 'Best of 5' : 'Unknown format'} •{' '}
+                  {format?.groupWinningCondition === WinningCondition.EXACT ? 'Exact Score' : 'Two Points Difference'} •{' '}
+                  Target: {format?.groupScore} • Max: {format?.groupMaxScore}
                 </div>
               </div>
               <button
@@ -248,18 +334,37 @@ export default function MatchOperationPage() {
           </div>
 
           <div className="p-8 space-y-8">
-            {/* Score Display */}
+            {/* Games Overview */}
+            <div className="grid grid-cols-5 gap-4 bg-gray-50 p-4 rounded-lg">
+              {matchState.games.map((game, index) => (
+                <div
+                  key={index}
+                  className={`text-center p-2 rounded ${
+                    index === matchState.currentGame
+                      ? 'bg-[#39846d] text-white'
+                      : 'bg-white'
+                  }`}
+                >
+                  <div className="font-medium">Game {index + 1}</div>
+                  <div className="text-sm">
+                    {game.team1Score} - {game.team2Score}
+                  </div>
+                </div>
+              ))}
+            </div>
+
+            {/* Current Game Score Display */}
             <div className="flex justify-center items-center space-x-8 text-4xl font-bold">
               <div className="text-center">
-                <div>{team1.player1Name}</div>
-                {team1.player2Name && <div>{team1.player2Name}</div>}
-                <div className="mt-2 text-6xl">{matchState.team1Score}</div>
+                <div>{team1?.player1Name}</div>
+                {team1?.player2Name && <div>{team1.player2Name}</div>}
+                <div className="mt-2 text-6xl">{matchState.games[matchState.currentGame]?.team1Score || 0}</div>
               </div>
               <div className="text-gray-400">vs</div>
               <div className="text-center">
-                <div>{team2.player1Name}</div>
-                {team2.player2Name && <div>{team2.player2Name}</div>}
-                <div className="mt-2 text-6xl">{matchState.team2Score}</div>
+                <div>{team2?.player1Name}</div>
+                {team2?.player2Name && <div>{team2.player2Name}</div>}
+                <div className="mt-2 text-6xl">{matchState.games[matchState.currentGame]?.team2Score || 0}</div>
               </div>
             </div>
 
@@ -339,9 +444,9 @@ export default function MatchOperationPage() {
             <div className="flex justify-center">
               <button
                 onClick={handleUndo}
-                disabled={matchState.history.length === 0}
+                disabled={matchState.games[matchState.currentGame]?.history.length === 0}
                 className={`px-6 py-2 rounded ${
-                  matchState.history.length === 0
+                  matchState.games[matchState.currentGame]?.history.length === 0
                     ? 'bg-gray-300 cursor-not-allowed'
                     : 'bg-red-500 text-white hover:bg-red-600'
                 }`}

@@ -115,8 +115,6 @@ export const db = new sqlite3.Database(dbPath, (err) => {
       GroupId INTEGER,
       Team1Id INTEGER,
       Team2Id INTEGER,
-      Team1FinalScore INTEGER,
-      Team2FinalScore INTEGER,
       UmpireId VARCHAR(36),
       CourtNum VARCHAR(255),
       WinnerId INTEGER,
@@ -130,6 +128,19 @@ export const db = new sqlite3.Database(dbPath, (err) => {
       FOREIGN KEY (GroupId) REFERENCES "Group"(GroupId),
       FOREIGN KEY (Team1Id) REFERENCES Team(TeamId),
       FOREIGN KEY (Team2Id) REFERENCES Team(TeamId)
+    )`);
+
+    // Create Game table
+    db.run(`CREATE TABLE IF NOT EXISTS Game (
+      GameId INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      MatchId VARCHAR(36) NOT NULL,
+      Team1Score INTEGER,
+      Team2Score INTEGER,
+      Deleted BOOLEAN DEFAULT false,
+      DateCreated DATETIME,
+      DateModified DATETIME,
+      DateDeleted DATETIME,
+      FOREIGN KEY (MatchId) REFERENCES Match(MatchId)
     )`);
 
     // Update existing date columns to DATETIME format

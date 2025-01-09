@@ -23,7 +23,7 @@ export class MatchGeneratorService {
     
     // Save all matches to database
     const savedMatches = await Promise.all(
-      matches.map(match => this.matchService.addMatch(match))
+      matches.map(match => this.matchService.createMatch(match))
     );
 
     return savedMatches;

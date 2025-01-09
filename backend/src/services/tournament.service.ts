@@ -66,7 +66,8 @@ export class TournamentService {
           DateDeleted as dateDeleted,
           StartDate as startDate,
           EndDate as endDate,
-          InvitationCode as invitationCode
+          InvitationCode as invitationCode,
+          OwnerId as ownerId
         FROM Tournament 
         WHERE TournamentId = ?`;
       

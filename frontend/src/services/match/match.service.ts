@@ -12,8 +12,10 @@ interface MatchDetails {
 }
 
 interface UpdateMatchScoreRequest {
-  team1Score: number;
-  team2Score: number;
+  game: {
+    team1Score: number;
+    team2Score: number;
+  }[];
   result: MatchStatus;
 }
 

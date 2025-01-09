@@ -101,7 +101,7 @@ export class FormatService {
         PlayOffWinningCondition, PlayOffFormat, Deleted,
         DateCreated, DateModified, DateDeleted,
         FormatType
-      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
+      ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`;
 
       const params = [
         format.tournamentId,
@@ -166,6 +166,7 @@ export class FormatService {
         format.groupWinningCondition,
         format.playOffScore,
         format.playOffMaxScore,
+        format.playOffBestOf,
         format.playOffWinningCondition,
         format.playOffFormat,
         format.dateModified,
