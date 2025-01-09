@@ -13,8 +13,8 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: 'Tournament Hub',
-  description: 'Create or join tournaments',
+  title: 'Badminton Master',
+  description: 'All-in-one badminton app',
   icons: {
     icon: '/icon.ico',
     // Optional: different sizes
