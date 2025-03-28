@@ -2,16 +2,12 @@
 
 import { useRouter } from 'next/navigation';
 import Image from 'next/image';
-import LanguageSwitcher from '~/[locale]/components/LanguageSwitcher';
 
 export default function Home() {
   const router = useRouter();
 
   return (
     <main className="min-h-screen flex items-center justify-center bg-gray-50 relative">
-      <div className="absolute top-4 right-4">
-        <LanguageSwitcher />
-      </div>
       <div className="max-w-md w-full space-y-8 p-8">
         <div className="text-center">
           <div className="flex justify-center mb-4">
